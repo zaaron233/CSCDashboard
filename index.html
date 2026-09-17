@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSC Capacity Dashboard — Stable Sample</title>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--text:#172033;--muted:#6b778c;--line:#e5eaf1;--nav:#0f1e33;--nav2:#162943;--blue:#2563eb;--blue2:#60a5fa;--green:#15803d;--amber:#d97706;--red:#dc2626;--teal:#0f766e;--purple:#7c3aed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.sidebar{background:var(--nav);color:#dce6f3;padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto}.brand{font-weight:850;font-size:16px;letter-spacing:.01em;margin:2px 8px 20px}.nav-group{margin:18px 0 8px;padding:0 8px;color:#8495aa;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.nav-btn{width:100%;border:0;background:transparent;color:#c7d3e2;text-align:left;padding:9px 10px;border-radius:8px;cursor:pointer;font:inherit;display:flex;justify-content:space-between;gap:8px}.nav-btn:hover,.nav-btn.active{background:var(--nav2);color:#fff}.nav-badge{font-size:9px;padding:2px 6px;border-radius:99px;background:#233954;color:#d9e6f3}.main{min-width:0}.topbar{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20}.page-title{font-size:18px;font-weight:850}.page-kicker{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:800}.toolbar{display:flex;align-items:center;gap:10px}.toolbar label{font-size:10px;color:var(--muted);font-weight:700}.toolbar select{border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:#fff;color:var(--text)}.content{padding:22px 24px 36px;max-width:1720px;margin:auto}.page{display:none}.page.active{display:block}.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kpis.three{grid-template-columns:repeat(3,minmax(0,1fr))}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{background:var(--panel);border:1px solid var(--line);border-radius:11px;overflow:hidden}.panel-head{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-title{font-weight:850;font-size:13px}.panel-note{font-size:10px;color:var(--muted);margin-top:2px}.panel-body{padding:15px}.kpi{padding:15px}.kpi-label{font-size:10px;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:.04em}.kpi-value{font-size:28px;font-weight:900;margin-top:3px;line-height:1.15}.kpi-sub{font-size:10px;color:var(--muted);margin-top:5px}.section-gap{height:14px}.clickable{cursor:pointer}.clickable:hover{border-color:#b9c7da}.pill{font-size:10px;font-weight:850;padding:4px 7px;border-radius:99px}.safe{background:#edf9f0;color:var(--green)}.warning{background:#fff7e8;color:var(--amber)}.danger{background:#fff0f0;color:var(--red)}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:720px}.table th,.table td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}.table th{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:#fafbfc;position:sticky;top:0}.table th:first-child,.table td:first-child{text-align:left}.table td.total{font-weight:850}.subhead{font-size:11px;font-weight:850;margin-bottom:10px}.small-card{border:1px solid var(--line);border-radius:9px;padding:12px;background:#fbfcfe}.workload-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}.workload-row{display:grid;grid-template-columns:1.6fr .75fr .65fr .85fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);align-items:center}.workload-row:last-child{border-bottom:0}.workload-row.header{font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase}.workload-row>div:not(:first-child){text-align:right}.workload-total{display:flex;justify-content:space-between;gap:12px;padding-top:10px;margin-top:8px;border-top:1px solid var(--line);font-weight:850}
+.summary-total-line{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:9px;background:#f1f6ff;border:1px solid #dbe8fb}
+.summary-total-line span{font-size:10px;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:.04em}
+.summary-total-line b{font-size:18px;color:#174ea6}
+.heatmap-layout{display:grid;grid-template-columns:minmax(620px,1.55fr) minmax(430px,1fr);gap:16px;align-items:start}
+.heatmap-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px}
+.heatmap-table{width:100%;border-collapse:separate;border-spacing:0;min-width:980px}
+.heatmap-table th,.heatmap-table td{padding:10px 9px;border-right:1px solid #e8edf4;border-bottom:1px solid #e8edf4;text-align:center;white-space:nowrap}
+.heatmap-table th:last-child,.heatmap-table td:last-child{border-right:0}
+.heatmap-table tr:last-child td{border-bottom:0}
+.heatmap-table thead th{background:#f8fafc;color:#24324a;font-size:10px;font-weight:850;position:sticky;top:0;z-index:2}
+.heatmap-table thead th.agent-col{text-align:left;left:0;z-index:4}
+.heatmap-table tbody td.agent-col{position:sticky;left:0;background:#fff;text-align:left;font-weight:800;z-index:1}
+.heatmap-table .rank-col{width:38px;color:var(--muted)}
+.heatmap-table .till-col{font-weight:900;color:#172554}
+.heatmap-table .all-row td{background:#eaf5ff;color:#1355c5;font-weight:900}
+.heatmap-table .all-row td.agent-col{background:#eaf5ff}
+.hm-cell{cursor:pointer;transition:box-shadow .12s ease,transform .12s ease}
+.hm-cell:hover{box-shadow:inset 0 0 0 2px #2563eb}
+.hm-cell.selected{box-shadow:inset 0 0 0 2px #2563eb}
+.hm-low{background:#c8f5b4}
+.hm-midlow{background:#e7f3a4}
+.hm-mid{background:#ffe697}
+.hm-high{background:#ffc184}
+.hm-hot{background:#ff9990}
+.hm-future{background:#f2f4f7;color:#8a94a3}
+.heatmap-side{border:1px solid var(--line);border-radius:9px;background:#fff;overflow:hidden;min-width:0}
+.heatmap-side-head{padding:13px 14px;border-bottom:1px solid var(--line);background:#fafbfc}
+.heatmap-side-title{font-size:13px;font-weight:900}
+.heatmap-side-body{padding:16px}
+.hm-agent{font-size:17px;font-weight:900}
+.hm-period{font-size:10px;color:var(--muted);margin-top:2px}
+.hm-total{display:flex;justify-content:space-between;align-items:end;margin:15px 0 12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.hm-total span{font-size:10px;font-weight:750}
+.hm-total b{font-size:25px}
+.hm-breakdown-head{display:grid;grid-template-columns:1fr 80px;gap:8px;padding:7px 0;font-size:9px;color:var(--muted);font-weight:850;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.hm-breakdown-row{display:grid;grid-template-columns:1fr 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.hm-breakdown-row:last-child{border-bottom:0}
+.hm-worktype{display:flex;align-items:center;gap:8px;font-size:11px}
+.hm-dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.hm-breakdown-value{text-align:right;font-weight:850;font-size:11px}
+.summary-live{display:flex;align-items:center;gap:7px;color:#15803d;font-size:10px;font-weight:850}
+.summary-live i{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block}
+.hm-analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
+.hm-metric{border:1px solid var(--line);border-radius:8px;padding:11px 12px;background:#fbfcfe;min-height:76px}
+.hm-metric .label{font-size:10px;color:var(--muted);font-weight:750;line-height:1.3;min-height:26px}
+.hm-metric .value{font-size:21px;font-weight:900;margin-top:5px;color:#16213e}
+.hm-vis-grid{display:grid;grid-template-columns:minmax(185px,.9fr) minmax(220px,1.1fr);gap:12px;margin-top:10px}
+.hm-card{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fbfcfe;min-width:0}
+.hm-card-title{font-size:11px;font-weight:850;margin-bottom:10px;color:#1f2a44}
+.hm-donut-wrap{display:flex;align-items:center;justify-content:center;gap:10px;flex-direction:column;min-height:185px}
+.hm-donut{--pct:0; width:138px;height:138px;border-radius:50%;background:conic-gradient(#2563eb calc(var(--pct)*1%), #dbe3ef 0);display:grid;place-items:center}
+.hm-donut::before{content:"";width:94px;height:94px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px #e5eaf1}
+.hm-donut-center{position:absolute;text-align:center}
+.hm-donut-center b{display:block;font-size:18px;color:#16213e}
+.hm-donut-center span{font-size:10px;color:var(--muted)}
+.hm-donut-holder{position:relative;display:grid;place-items:center}
+.hm-donut-legend{width:100%;display:grid;gap:6px}
+.hm-donut-legend .row{display:flex;justify-content:space-between;gap:8px;font-size:11px}
+.hm-donut-legend .left{display:flex;align-items:center;gap:8px}
+.hm-compare-list{display:grid;gap:8px}
+.hm-compare-row{display:grid;grid-template-columns:70px minmax(70px,1fr) 38px;gap:8px;align-items:center;font-size:11px}
+.hm-compare-row .bar{height:10px;background:#e5eaf1;border-radius:999px;overflow:hidden}
+.hm-compare-row .bar i{display:block;height:100%;background:#cbd5e1;border-radius:999px}
+.hm-compare-row.active .name{color:#2563eb;font-weight:900}
+.hm-compare-row.active .bar i{background:#2563eb}
+.hm-breakdown-box{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff}
+.hm-note{margin-top:12px;padding:10px 12px;border:1px solid #dbe8fb;background:#f5f9ff;border-radius:8px;color:#2957c8;font-size:11px;display:flex;align-items:center;gap:8px}
+.hm-note i{width:16px;height:16px;border-radius:50%;background:#60a5fa;color:#fff;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:11px}
+.worktype-heatmap{margin-top:14px}.worktype-hm-layout{display:grid;grid-template-columns:minmax(650px,1.65fr) minmax(360px,.85fr);gap:14px;align-items:start}.worktype-hm-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px;background:#fff}.worktype-hm-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px}.worktype-hm-table th,.worktype-hm-table td{padding:9px 8px;border-right:1px solid #e8edf4;border-bottom:1px solid #e8edf4;text-align:center;white-space:nowrap}.worktype-hm-table th:last-child,.worktype-hm-table td:last-child{border-right:0}.worktype-hm-table tr:last-child td{border-bottom:0}.worktype-hm-table thead th{background:#f8fafc;color:#24324a;font-size:9px;font-weight:850;position:sticky;top:0;z-index:2}.worktype-hm-table .agent-col{position:sticky;left:0;text-align:left;z-index:3}.worktype-hm-table thead .agent-col{background:#f8fafc}.worktype-hm-table tbody .agent-col{background:#fff;font-weight:800}.worktype-hm-table .all-row td{background:#edf6ff;color:#1555c4;font-weight:900}.worktype-hm-table .all-row .agent-col{background:#edf6ff}.wt-hm-cell{cursor:pointer;transition:box-shadow .12s ease,filter .12s ease}.wt-hm-cell:hover,.wt-hm-cell:focus{outline:none;box-shadow:inset 0 0 0 2px #2563eb;filter:saturate(1.06)}.wt-hm-cell.selected{box-shadow:inset 0 0 0 2px #2563eb}.wt-hm-side{border:1px solid var(--line);border-radius:9px;background:#fff;overflow:hidden}.wt-hm-side-head{padding:12px 14px;border-bottom:1px solid var(--line);background:#fafbfc;display:flex;justify-content:space-between;gap:10px;align-items:center}.wt-hm-side-title{font-size:12px;font-weight:900}.wt-hm-side-body{padding:14px}.wt-hm-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.wt-hm-metric{border:1px solid var(--line);border-radius:8px;padding:10px;background:#fbfcfe}.wt-hm-metric .label{font-size:9px;color:var(--muted);font-weight:750;line-height:1.3;min-height:24px}.wt-hm-metric .value{font-size:19px;font-weight:900;margin-top:4px}.wt-hm-visuals{display:grid;grid-template-columns:155px minmax(0,1fr);gap:10px;align-items:start}.wt-donut-holder{position:relative;display:grid;place-items:center;margin-top:8px}.wt-donut{--pct:0;width:120px;height:120px;border-radius:50%;background:conic-gradient(#2563eb calc(var(--pct)*1%),#dbe3ef 0);display:grid;place-items:center}.wt-donut:before{content:"";width:82px;height:82px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px #e5eaf1}.wt-donut-center{position:absolute;text-align:center}.wt-donut-center b{display:block;font-size:17px}.wt-donut-center span{font-size:9px;color:var(--muted)}.wt-compare{display:grid;gap:7px}.wt-compare-row{display:grid;grid-template-columns:64px 1fr 30px;gap:7px;align-items:center;font-size:10px}.wt-compare-row .bar{height:8px;background:#e5eaf1;border-radius:999px;overflow:hidden}.wt-compare-row .bar i{display:block;height:100%;background:#cbd5e1;border-radius:999px}.wt-compare-row.active{font-weight:850;color:#2563eb}.wt-compare-row.active .bar i{background:#2563eb}.heat-legend{display:flex;align-items:center;gap:7px;font-size:9px;color:var(--muted);margin-top:9px}.heat-gradient{width:120px;height:8px;border-radius:999px;background:linear-gradient(90deg,#c8f5b4,#e7f3a4,#ffe697,#ffc184,#ff9990)}.mini-select{border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:#fff;color:var(--text);font-size:10px}.panel-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.interactive-row{cursor:pointer}.interactive-row:hover td{background:#f8fbff}.updated-chip{font-size:9px;color:#15803d;font-weight:850;display:flex;gap:5px;align-items:center}.updated-chip:before{content:"";width:7px;height:7px;border-radius:50%;background:#22c55e}@media(max-width:1180px){.worktype-hm-layout{grid-template-columns:1fr}.wt-hm-side{max-width:none}}@media(max-width:760px){.wt-hm-metrics,.wt-hm-visuals{grid-template-columns:1fr}.panel-head{align-items:flex-start}.panel-actions{justify-content:flex-start}}
+
+
+@media(max-width:1180px){.heatmap-layout{grid-template-columns:1fr}.heatmap-side{max-width:none}.hm-analysis-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.hm-vis-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.hm-analysis-grid,.hm-vis-grid{grid-template-columns:1fr}}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:10px;color:var(--muted)}.legend i{display:inline-block;width:14px;height:3px;margin-right:5px;vertical-align:middle}.chartbox{position:relative}.chartbox svg{width:100%;height:250px;display:block}.chartbox.mini svg{height:190px}.gridline{stroke:#e9edf3;stroke-width:1}.axis{stroke:#a8b3c3;stroke-width:1}.line-actual{fill:none;stroke:var(--blue);stroke-width:2.5}.line-forecast{fill:none;stroke:#f97316;stroke-width:2.4}.line-lower,.line-upper{fill:none;stroke:#f59e0b;stroke-width:1.8;stroke-dasharray:6 4}.line-forecast{fill:none;stroke:#ef4444;stroke-width:2.4}.line-backlog{fill:none;stroke:var(--teal);stroke-width:2.4}.band{fill:rgba(249,115,22,.10)}.dot{fill:var(--blue);stroke:#fff;stroke-width:1.5}.dot-forecast{fill:#f97316;stroke:#fff;stroke-width:1.5}.hit{fill:transparent;cursor:crosshair}.chart-tip{position:absolute;display:none;z-index:6;pointer-events:none;min-width:175px;background:#0f172a;color:#fff;padding:9px 10px;border-radius:8px;font-size:10px;box-shadow:0 8px 20px rgba(15,23,42,.22)}.chart-tip .r{display:flex;justify-content:space-between;gap:12px}.chart-tip .r span{color:#cbd5e1}.chart-tip b{font-size:11px}.warning-board{display:grid;gap:14px}.warning-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.warning-big{font-size:40px;font-weight:900;line-height:1}.gauge{margin-top:14px}.gauge-track{height:17px;border-radius:8px;overflow:hidden;display:grid;grid-template-columns:6fr 1fr 2fr;background:#eef2f7}.gauge-track span:nth-child(1){background:#dff3e5}.gauge-track span:nth-child(2){background:#ffedc9}.gauge-track span:nth-child(3){background:#fde0e0}.gauge-pos{position:relative;height:16px}.gauge-marker{position:absolute;top:-17px;width:2px;height:31px;background:#172033}.gauge-marker:after{content:"";position:absolute;top:-2px;left:-4px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #172033}.stack{height:22px;border-radius:7px;overflow:hidden;display:flex;background:#eef2f7}.stack span{height:100%}.stack-legend{display:grid;gap:7px;margin-top:12px}.stack-row{display:grid;grid-template-columns:115px 1fr 58px;gap:9px;align-items:center}.stack-row .bar{height:8px;background:#eef2f7;border-radius:5px;overflow:hidden}.stack-row .bar i{display:block;height:100%;background:var(--blue)}.site-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.site-row{display:grid;grid-template-columns:60px 1fr 70px 70px;gap:7px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}.site-row.head{font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase}.site-row>div:nth-child(n+3){text-align:right}.status-copy{margin-top:13px;padding:10px 11px;border-radius:8px;background:#f8fafc;font-size:11px}.admin-note{font-size:10px;color:var(--muted);padding:11px 13px;border:1px dashed #c9d2df;border-radius:8px}.field-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.settings-sections{display:grid;gap:14px}
+.settings-group{border:1px solid var(--line);border-radius:10px;background:#fbfcfe;overflow:hidden}
+.settings-group-head{padding:11px 13px;border-bottom:1px solid var(--line);background:#f7f9fc}
+.settings-group-title{font-size:11px;font-weight:850}
+.settings-group-note{font-size:9px;color:var(--muted);margin-top:2px}
+.settings-group-body{padding:13px}
+.settings-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.settings-grid-5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.settings-grid-noon{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(0,1.3fr);gap:14px;align-items:stretch}
+.settings-derived{border:1px dashed #cbd5e1;border-radius:8px;padding:10px 11px;background:#fff}
+.settings-derived-title{font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.settings-derived-value{font-size:12px;font-weight:850;margin-top:4px}
+.settings-derived-note{font-size:9px;color:var(--muted);margin-top:3px}
+.field label{display:block;font-size:10px;color:var(--muted);font-weight:750;margin-bottom:5px}.field input{width:100%;border:1px solid var(--line);border-radius:7px;padding:8px;background:#fff}.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 10px;cursor:pointer;font:inherit;font-weight:700}.btn.primary{background:#1d4ed8;color:#fff;border-color:#1d4ed8}.notice{padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;font-size:11px}.tabs{display:flex;gap:7px;margin-bottom:12px}.tab{border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 10px;cursor:pointer;font-weight:750}.tab.active{background:#172033;color:#fff;border-color:#172033}.aging-bars{display:grid;gap:9px}.aging-row{display:grid;grid-template-columns:70px 1fr 55px;gap:9px;align-items:center}.aging-stack{height:18px;border-radius:6px;overflow:hidden;display:flex;background:#eef2f7}.aging-stack .hard{background:#dc2626}.aging-stack .ideal{background:#f59e0b}.aging-stack .low{background:#94a3b8}
+.aging-stack span{display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:900;line-height:1;min-width:0;overflow:hidden;white-space:nowrap}
+.aging-row{position:relative}
+.aging-row[data-tooltip]:hover:after{
+  content:attr(data-tooltip);
+  position:absolute;
+  left:78px;
+  bottom:28px;
+  z-index:30;
+  background:#0f172a;
+  color:#fff;
+  padding:7px 9px;
+  border-radius:7px;
+  font-size:10px;
+  font-weight:650;
+  white-space:nowrap;
+  box-shadow:0 8px 20px rgba(15,23,42,.22);
+  pointer-events:none
+}
+.aging-row[data-tooltip]:hover:before{
+  content:"";
+  position:absolute;
+  left:102px;
+  bottom:23px;
+  z-index:31;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-top:6px solid #0f172a;
+  pointer-events:none
+}
+.stack span{display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:900;overflow:hidden;white-space:nowrap}
+.site-row .bar{position:relative}
+.site-row .bar:hover:after{
+  content:attr(data-tooltip);
+  position:absolute;
+  left:50%;
+  bottom:16px;
+  transform:translateX(-50%);
+  z-index:30;
+  background:#0f172a;
+  color:#fff;
+  padding:6px 8px;
+  border-radius:6px;
+  font-size:9px;
+  white-space:nowrap;
+  pointer-events:none
+}
+.link-btn{color:#2563eb;text-decoration:underline;cursor:pointer}.hidden{display:none!important}
+@media(max-width:1050px){.app{grid-template-columns:190px 1fr}.kpis,.kpis.three,.two,.workload-section,.warning-layout,.site-grid,.field-grid,.settings-grid-3,.settings-grid-5,.settings-grid-noon{grid-template-columns:1fr 1fr}.content{padding:16px}.topbar{padding:0 16px}}
+@media(max-width:760px){.app{display:block}.sidebar{position:relative;height:auto}.kpis,.kpis.three,.two,.workload-section,.warning-layout,.site-grid,.field-grid,.settings-grid-3,.settings-grid-5,.settings-grid-noon,.hm-analysis-grid,.hm-vis-grid{grid-template-columns:1fr}.topbar{position:relative;height:auto;padding:12px;align-items:flex-start;gap:12px}.toolbar{flex-wrap:wrap}.content{padding:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">CSC Capacity Dashboard</div>
+    <div class="nav-group">1. Overview</div>
+    <button class="nav-btn active" data-page="summary"><span>Capacity Summary</span></button>
+    <button class="nav-btn" data-page="warning"><span>Workload Warning</span><span class="nav-badge">Safe</span></button>
+    <div class="nav-group">2. Workload</div>
+    <button class="nav-btn" data-page="livechat"><span>LiveChat</span></button>
+    <button class="nav-btn" data-page="call"><span>Call</span></button>
+    <button class="nav-btn" data-page="pa"><span>PA Ticket</span></button>
+    <button class="nav-btn" data-page="pq"><span>PQ Ticket</span></button>
+    <button class="nav-btn" data-page="white"><span>RMA White</span><span class="nav-badge">88</span></button>
+    <button class="nav-btn" data-page="yellow"><span>RMA Yellow</span><span class="nav-badge">72</span></button>
+    <button class="nav-btn" data-page="helpdesk"><span>HelpDesk</span><span class="nav-badge">175</span></button>
+    <button class="nav-btn" data-page="email"><span>RMA Email Daily</span></button>
+    <div class="nav-group">3. Administration</div>
+    <button class="nav-btn" data-page="forecast"><span>Forecast Monitoring</span></button>
+    <button class="nav-btn" data-page="settings"><span>Settings</span></button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><div class="page-kicker" id="pageKicker">Overview</div><div class="page-title" id="pageTitle">Capacity Summary</div></div>
+      <div class="toolbar">
+        <label>Date <select id="dateSelect"><option>2026-09-16</option><option>2026-09-15</option><option>2026-09-14</option></select></label>
+        <label id="snapshotLabel">Snapshot <select id="snapshotSelect"><option>07:00</option><option>09:00</option><option>12:30</option><option selected>15:30</option><option>16:00</option></select></label>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="page active" id="page-summary">
+        <div class="grid kpis">
+          <div class="panel kpi clickable" data-go="warning"><div class="kpi-label">Morning Check</div><div class="kpi-value">2,334</div><div class="kpi-sub">SAFE · [0, 2,790] workload</div></div>
+          <div class="panel kpi clickable" data-go="warning"><div class="kpi-label">Noon Check</div><div class="kpi-value">844.5</div><div class="kpi-sub">SAFE · [0, 1,221] workload</div></div>
+          <div class="panel kpi clickable" data-go="warning"><div class="kpi-label">Afternoon Check</div><div class="kpi-value">3</div><div class="kpi-sub">SAFE · [0, 6] required agents</div></div>
+          <div class="panel kpi"><div class="kpi-label">Today Hard Due</div><div class="kpi-value">335</div><div class="kpi-sub">HelpDesk 175 · RMA Yellow 72 · RMA White 88</div></div>
+        </div>
+
+        <div class="section-gap"></div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Today Workload</div>
+              <div class="panel-note">Daily planned workload = Forecast workload + Hard Due Today workload</div>
+            </div>
+            <div class="panel-note">Count × Weight = Workload</div>
+          </div>
+          <div class="panel-body">
+            <div class="workload-section">
+              <div class="small-card">
+                <div class="subhead">Forecast</div>
+                <div class="workload-row header"><div>Work Type</div><div>Count</div><div>Weight</div><div>Workload</div></div>
+                <div class="workload-row clickable" data-go="livechat"><div>LiveChat</div><div>152</div><div>2</div><div>304</div></div>
+                <div class="workload-row clickable" data-go="call"><div>Call</div><div>485</div><div>3</div><div>1,455</div></div>
+                <div class="workload-total"><span>Forecast Workload</span><span>1,759</span></div>
+                <div class="panel-note">90% count range: LiveChat 136–168 · Call 432–538</div>
+              </div>
+
+              <div class="small-card">
+                <div class="subhead">Hard Due Today</div>
+                <div class="workload-row header"><div>Work Type</div><div>Count</div><div>Weight</div><div>Workload</div></div>
+                <div class="workload-row clickable" data-go="helpdesk"><div>HelpDesk</div><div>175</div><div>1</div><div>175</div></div>
+                <div class="workload-row clickable" data-go="yellow"><div>RMA Yellow</div><div>72</div><div>2.5</div><div>180</div></div>
+                <div class="workload-row clickable" data-go="white"><div>RMA White</div><div>88</div><div>2.5</div><div>220</div></div>
+                <div class="workload-total"><span>Hard Due Workload</span><span>575</span></div>
+              </div>
+            </div>
+            <div class="summary-total-line"><span>Today Total Planned Workload</span><b>2,334</b></div>
+          </div>
+        </section>
+
+        <div class="section-gap"></div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Agent Workload Heatmap</div>
+              <div class="panel-note">Calculated workload by agent and hour. Click any heatmap cell to see the work type breakdown.</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:850;text-align:right">As of 3:30 PM (PDT)</div>
+              <div class="summary-live"><i></i>Live · updates every 30 minutes</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="heatmap-layout">
+              <div><div class="heatmap-wrap">
+                <table class="heatmap-table" id="summaryHeatmap">
+                  <thead>
+                    <tr>
+                      <th class="rank-col">#</th>
+                      <th class="agent-col">Agent</th>
+                      <th>Till Now<br><span style="font-weight:500;color:#64748b">7:00 AM–3:30 PM</span></th>
+                      <th>7–8</th>
+                      <th>8–9</th>
+                      <th>9–10</th>
+                      <th>10–11</th>
+                      <th>11–12</th>
+                      <th>12–1</th>
+                      <th>1–2</th>
+                      <th>2–3</th>
+                      <th>3–4<br><span style="font-weight:500;color:#64748b">In Progress</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="summaryHeatmapBody"></tbody>
+                </table>
+                </div><div class="heat-legend"><span>Lower Workload</span><span class="heat-gradient"></span><span>Higher Workload</span></div></div>
+
+              <aside class="heatmap-side">
+                <div class="heatmap-side-head">
+                  <div class="heatmap-side-title">Selected Hour Analysis</div><div class="panel-note">Agent share, team comparison and work type breakdown</div>
+                </div>
+                <div class="heatmap-side-body" id="summaryHeatmapDetail">
+                  <div class="hm-agent">Select a cell</div>
+                  <div class="hm-period">Click an agent/hour cell in the heatmap</div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" id="page-warning">
+        <div class="warning-board">
+          <section class="panel"><div class="panel-head"><div><div class="panel-title">Morning Check</div><div class="panel-note">7:00 AM · Full-day workload vs regular capacity</div></div><span class="pill safe">SAFE</span></div><div class="panel-body warning-layout"><div><div class="kpi-label">Total Workload</div><div class="warning-big">2,334</div><div class="gauge" data-gauge="2334,2790,3255"></div><div class="status-copy">Current forecast is within regular capacity. No lunch break adjustment or OT is expected.</div></div><div id="morningStack"></div></div></section>
+          <section class="panel"><div class="panel-head"><div><div class="panel-title">Noon Check</div><div class="panel-note">12:30 PM · Remaining workload vs afternoon capacity</div></div><span class="pill safe">SAFE</span></div><div class="panel-body warning-layout"><div><div class="kpi-label">Remaining Workload</div><div class="warning-big">844.5</div><div class="gauge" data-gauge="844.5,1221,1424"></div><div class="status-copy">Remaining workload is within the available afternoon capacity. No OT is expected.</div></div><div id="noonStack"></div></div></section>
+          <section class="panel"><div class="panel-head"><div><div class="panel-title">Afternoon Check</div><div class="panel-note">3:30 PM · Remaining Hard Due workload and staffing requirement</div></div><span class="pill safe">SAFE</span></div><div class="panel-body warning-layout"><div><div class="kpi-label">Required Agents</div><div class="warning-big">3</div><div class="gauge" data-gauge="3,6,7"></div><div class="status-copy">Remaining Hard Due workload requires 3 agents to complete. Current staffing requirement is within the safe range.</div></div><div><div id="afternoonStack"></div><div class="site-grid"><div class="small-card"><div class="subhead">RMA White by Site</div><div class="site-row head"><div>Site</div><div></div><div>Tickets</div><div>Workload</div></div><div id="whiteSites"></div></div><div class="small-card"><div class="subhead">RMA Yellow by Site</div><div class="site-row head"><div>Site</div><div></div><div>Tickets</div><div>Workload</div></div><div id="yellowSites"></div></div></div></div></div></section>
+          <div class="admin-note">Thresholds, check times, workload weights and warning rules are maintained under <b>Administration → Settings</b>. This page focuses on operational outcomes.</div>
+        </div>
+      </section>
+
+      <section class="page" id="page-livechat"><div id="livechatContent"></div></section>
+      <section class="page" id="page-call"><div id="callContent"></div></section>
+      <section class="page" id="page-pa"><div id="paContent"></div></section>
+      <section class="page" id="page-pq"><div id="pqContent"></div></section>
+      <section class="page" id="page-white"><div id="whiteContent"></div></section>
+      <section class="page" id="page-yellow"><div id="yellowContent"></div></section>
+      <section class="page" id="page-helpdesk"><div id="helpdeskContent"></div></section>
+
+      <section class="page" id="page-email">
+        <section class="panel"><div class="panel-head"><div><div class="panel-title">RMA Email Daily</div><div class="panel-note">Unread mailbox aging by site · refreshed every 30 minutes</div></div><span class="updated-chip">As of 3:30 PM</span></div><div class="panel-body"><div class="table-wrap"><table class="table"><thead><tr><th>Site</th><th>Unread</th><th>Oldest Unread</th><th>Aging</th><th>Status</th></tr></thead><tbody><tr><td>LPN</td><td>12</td><td>2026-09-14 10:42</td><td>2d 4h</td><td><span class="pill warning">WATCH</span></td></tr><tr><td>MBPG</td><td>9</td><td>2026-09-13 15:18</td><td>2d 23h</td><td><span class="pill warning">WATCH</span></td></tr><tr><td>HPN</td><td>8</td><td>2026-09-14 07:35</td><td>2d 7h</td><td><span class="pill warning">WATCH</span></td></tr><tr><td>TPD</td><td>6</td><td>2026-09-15 08:06</td><td>1d 6h</td><td><span class="pill safe">OK</span></td></tr><tr><td>FPD</td><td>4</td><td>2026-09-15 13:22</td><td>1d 1h</td><td><span class="pill safe">OK</span></td></tr><tr><td>GPG</td><td>3</td><td>2026-09-16 09:21</td><td>5h</td><td><span class="pill safe">OK</span></td></tr></tbody></table></div></div></section>
+      </section>
+
+      <section class="page" id="page-forecast">
+        <div class="grid kpis three"><div class="panel kpi"><div class="kpi-label">Current Forecast Week</div><div class="kpi-value" style="font-size:20px">Sep 14–18</div><div class="kpi-sub">Generated Monday 00:00</div></div><div class="panel kpi"><div class="kpi-label">Actual Days</div><div class="kpi-value">3 / 5</div><div class="kpi-sub">Status: In Progress</div></div><div class="panel kpi"><div class="kpi-label">Training Window</div><div class="kpi-value" style="font-size:20px">6 Weeks</div><div class="kpi-sub">30 weekday observations</div></div></div><div class="section-gap"></div>
+        <section class="panel"><div class="panel-head"><div><div class="panel-title">Weekly Forecast Monitoring</div><div class="panel-note">Metrics finalize only after all 5 actual weekdays are available.</div></div></div><div class="panel-body"><div class="table-wrap"><table class="table"><thead><tr><th>Forecast Week</th><th>Work Type</th><th>Actual Days</th><th>Observed Coverage</th><th>Above Upper Rate</th><th>WAPE</th><th>Bias</th><th>Status</th></tr></thead><tbody><tr><td>09/07–09/11</td><td>LiveChat</td><td>5/5</td><td>80.0%</td><td>0.0%</td><td>8.6%</td><td>-2.1%</td><td><span class="pill safe">FINAL</span></td></tr><tr><td>09/07–09/11</td><td>Call</td><td>5/5</td><td>60.0%</td><td>20.0%</td><td>13.2%</td><td>+6.4%</td><td><span class="pill safe">FINAL</span></td></tr><tr><td>09/14–09/18</td><td>LiveChat</td><td>3/5</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="pill warning">IN PROGRESS</span></td></tr><tr><td>09/14–09/18</td><td>Call</td><td>3/5</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="pill warning">IN PROGRESS</span></td></tr></tbody></table></div></div></section>
+      </section>
+
+      <section class="page" id="page-settings">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Capacity Warning Rule Configuration</div>
+              <div class="panel-note">SuperAdmin settings grouped by rule type</div>
+            </div>
+            <button class="btn primary" id="saveSettings">Save Settings</button>
+          </div>
+          <div class="panel-body">
+            <div class="settings-sections">
+
+              <section class="settings-group">
+                <div class="settings-group-head">
+                  <div class="settings-group-title">Staffing & Capacity</div>
+                  <div class="settings-group-note">Thresholds used to determine Safe / Warning / Over Capacity status.</div>
+                </div>
+                <div class="settings-group-body">
+                  <div class="settings-grid-3">
+                    <div class="field"><label>Safe Agent Threshold</label><input value="6"></div>
+                    <div class="field"><label>Warning Agent Threshold</label><input value="7"></div>
+                    <div class="field"><label>Agent Daily Capacity</label><input value="465"></div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="settings-group">
+                <div class="settings-group-head">
+                  <div class="settings-group-title">Daily Check Times</div>
+                  <div class="settings-group-note">Scheduled checkpoints used by Workload Warning.</div>
+                </div>
+                <div class="settings-group-body">
+                  <div class="settings-grid-3">
+                    <div class="field"><label>Morning Check Time</label><input value="07:00"></div>
+                    <div class="field"><label>Noon Check Time</label><input value="12:30"></div>
+                    <div class="field"><label>Afternoon Check Time</label><input value="15:30"></div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="settings-group">
+                <div class="settings-group-head">
+                  <div class="settings-group-title">Workload Weights</div>
+                  <div class="settings-group-note">Workload = Count × Weight. Ticket / chat / call counts remain unweighted.</div>
+                </div>
+                <div class="settings-group-body">
+                  <div class="settings-grid-5">
+                    <div class="field"><label>LiveChat Weight</label><input value="2"></div>
+                    <div class="field"><label>Call Weight</label><input value="3"></div>
+                    <div class="field"><label>HelpDesk Weight</label><input value="1"></div>
+                    <div class="field"><label>RMA White Weight</label><input value="2.5"></div>
+                    <div class="field"><label>RMA Yellow Weight</label><input value="2.5"></div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="settings-group">
+                <div class="settings-group-head">
+                  <div class="settings-group-title">Noon Check Parameters</div>
+                  <div class="settings-group-note">Parameters specific to the noon remaining-workload calculation.</div>
+                </div>
+                <div class="settings-group-body">
+                  <div class="settings-grid-noon">
+                    <div class="field">
+                      <label>Noon Remaining Workload Ratio</label>
+                      <input value="0.3333">
+                    </div>
+                    <div class="settings-derived">
+                      <div class="settings-derived-title">Interpretation</div>
+                      <div class="settings-derived-value">≈ 1/3 of forecast workload remains after the Noon Check</div>
+                      <div class="settings-derived-note">This is maintained separately because it affects the Noon Check only, not Morning or Afternoon logic.</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+            </div>
+
+            <div class="section-gap"></div>
+            <div class="notice"><b>Rule ownership:</b> Morning / Noon / Afternoon calculation logic, thresholds, weights and check-time parameters are maintained here rather than on the operational warning page.</div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+'use strict';
+const pageMeta={summary:['Overview','Capacity Summary'],warning:['Overview','Workload Warning'],livechat:['Workload','LiveChat'],call:['Workload','Call'],pa:['Workload','PA Ticket'],pq:['Workload','PQ Ticket'],white:['Workload','RMA White'],yellow:['Workload','RMA Yellow'],helpdesk:['Workload','HelpDesk'],email:['Workload','RMA Email Daily'],forecast:['Administration','Forecast Monitoring'],settings:['Administration','Settings']};
+const colors={Call:'#2563eb',LiveChat:'#7c3aed',HelpDesk:'#0f766e','RMA White':'#f59e0b','RMA Yellow':'#dc2626'};
+const weights={'LiveChat':2,'Call':3,'HelpDesk':1,'RMA White':2.5,'RMA Yellow':2.5};
+const dayProgress={times:['07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00'],livechat:[7,13,20,29,39,50,62,74,86,94,101,108,115,122,130,136,141,146],call:[24,45,68,92,118,146,176,205,238,278,304,329,354,378,401,426,448,472]};
+const forecasts={livechat:{value:152,lower:136,upper:168},call:{value:485,lower:432,upper:538}};
+const previous={livechat:[146,159,153,144,137],call:[462,505,478,447,418]};
+const current={livechat:{forecast:[151,157,152,148,141],lower:[135,140,136,132,126],upper:[167,174,168,164,156]},call:{forecast:[472,509,485,456,425],lower:[420,454,432,406,378],upper:[523,565,538,506,472]}};
+const dates=['09/07','09/08','09/09','09/10','09/11','09/14','09/15','09/16','09/17','09/18'];
+
+function path(points){return points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}
+function svgLineChart(container,opts){
+ const W=760,H=220,p={l:42,r:14,t:18,b:30};
+ const series=opts.series; const all=[]; series.forEach(s=>s.values.forEach(v=>{if(v!=null)all.push(v)}));if(opts.extra)opts.extra.forEach(ex=>{if(ex.value!=null)all.push(ex.value)});
+ const max=Math.max.apply(null,all.concat([1]))*1.08; const min=0;
+ const count=series[0].values.length; const x=i=>p.l+i*(W-p.l-p.r)/Math.max(1,count-1); const y=v=>H-p.b-(v-min)/(max-min)*(H-p.t-p.b);
+ let grid=''; for(let g=0;g<=4;g++){const v=max*g/4,yy=y(v);grid+='<line class="gridline" x1="'+p.l+'" y1="'+yy+'" x2="'+(W-p.r)+'" y2="'+yy+'"></line><text x="4" y="'+(yy+3)+'" font-size="9" fill="#7b8797">'+Math.round(v)+'</text>'}
+ let content=grid+'<line class="axis" x1="'+p.l+'" y1="'+(H-p.b)+'" x2="'+(W-p.r)+'" y2="'+(H-p.b)+'"></line>';
+ if(opts.extra){opts.extra.forEach(ex=>{const cls=/lower/i.test(ex.name)?'line-lower':/upper/i.test(ex.name)?'line-upper':'line-forecast';content+='<line class="'+cls+'" x1="'+p.l+'" y1="'+y(ex.value)+'" x2="'+(W-p.r)+'" y2="'+y(ex.value)+'"></line>'})}
+ if(opts.band){const up=opts.band.upper.map((v,i)=>[x(i),y(v)]);const lo=opts.band.lower.map((v,i)=>[x(i),y(v)]).reverse();content+='<polygon class="band" points="'+up.concat(lo).map(q=>q[0]+','+q[1]).join(' ')+'"></polygon>'}
+ series.forEach(s=>{let seg=[];for(let i=0;i<s.values.length;i++){const v=s.values[i];if(v==null){if(seg.length>1)content+='<path d="'+path(seg)+'" class="'+s.cls+'"></path>';seg=[]}else seg.push([x(i),y(v)])}if(seg.length>1)content+='<path d="'+path(seg)+'" class="'+s.cls+'"></path>';});
+ for(let i=0;i<count;i++){if(opts.labels && (i===0||i===count-1||i%2===0))content+='<text x="'+x(i)+'" y="'+(H-9)+'" text-anchor="middle" font-size="9" fill="#7b8797">'+opts.labels[i]+'</text>'}
+ const primary=series[0]; primary.values.forEach((v,i)=>{if(v==null)return;content+='<circle class="dot" cx="'+x(i)+'" cy="'+y(v)+'" r="3"></circle><circle class="hit" data-i="'+i+'" cx="'+x(i)+'" cy="'+y(v)+'" r="11"></circle>'});
+ container.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+content+'</svg><div class="chart-tip"></div>';
+ const tip=container.querySelector('.chart-tip'); container.querySelectorAll('.hit').forEach(h=>{h.addEventListener('pointerenter',show);h.addEventListener('pointermove',show);h.addEventListener('pointerleave',()=>tip.style.display='none')});
+ function show(e){const i=+e.currentTarget.dataset.i;let html='<b>'+(opts.labels?opts.labels[i]:'')+'</b>';series.forEach(s=>{if(s.values[i]!=null)html+='<div class="r"><span>'+s.name+'</span><strong>'+s.values[i]+'</strong></div>'});if(opts.extra){opts.extra.forEach(ex=>html+='<div class="r"><span>'+ex.name+'</span><strong>'+ex.value+'</strong></div>')}tip.innerHTML=html;const r=container.getBoundingClientRect();tip.style.display='block';tip.style.left=Math.max(6,Math.min(r.width-185,e.clientX-r.left+12))+'px';tip.style.top=Math.max(6,e.clientY-r.top-65)+'px'}
+}
+function summaryForecastChart(el,type){const prev=previous[type],c=current[type],prevVals=prev.concat([null,null,null,null,null]),fVals=[null,null,null,null,null].concat(c.forecast),lo=[null,null,null,null,null].concat(c.lower),up=[null,null,null,null,null].concat(c.upper);svgLineChart(el,{labels:dates,series:[{name:'Previous Week Actual',values:prevVals,cls:'line-actual'},{name:'Forecast',values:fVals,cls:'line-forecast'},{name:'Lower',values:lo,cls:'line-lower'},{name:'Upper',values:up,cls:'line-upper'}],band:{lower:lo.map((v,i)=>v==null?(i<5?0:c.lower[i-5]):v),upper:up.map((v,i)=>v==null?(i<5?0:c.upper[i-5]):v)}})}
+
+function cumulativeRows(type){const vals=dayProgress[type],times=dayProgress.times;let prev=0;return times.map((t,i)=>{const cum=vals[i],completed=cum-prev;prev=cum;const a=Math.round(completed*.32),b=Math.round(completed*.38),c=Math.max(0,completed-a-b);return {interval:(i===0?'07:00':times[i-1])+'–'+t,time:t,a,b,c,done:completed,cum}})}
+const worktypeHeatmapAgents=['Agent C','Agent G','Agent E','Agent A','Agent B','Agent D','Agent F','Agent H'];
+const worktypeHeatmapPeriods=['7:00–8:00 AM','8:00–9:00 AM','9:00–10:00 AM','10:00–11:00 AM','11:00 AM–12:00 PM','12:00–1:00 PM','1:00–2:00 PM','2:00–3:00 PM','3:00–4:00 PM (In Progress)'];
+const worktypeHeatmapShort=['7–8','8–9','9–10','10–11','11–12','12–1','1–2','2–3','3–4'];
+const worktypeHeatmapBase={livechat:[12,17,22,24,21,27,23,18,10],call:[31,45,56,62,58,71,63,49,26],white:[4,7,10,12,11,14,13,9,5],yellow:[3,6,8,10,9,12,10,8,4],helpdesk:[8,13,17,20,18,23,21,16,9]};
+const wtAgentFactors=[1.22,1.14,1.08,1.02,.96,.90,.82,.74];
+function buildWorktypeHeatmapData(type){const base=worktypeHeatmapBase[type]||worktypeHeatmapBase.livechat;return worktypeHeatmapAgents.map((agent,ai)=>({agent,values:base.map((v,hi)=>Math.max(0,Math.round(v*wtAgentFactors[ai]*(.88+((ai*3+hi*5)%7)*.035))))}))}
+function completionLabel(type){return type==='livechat'?'Completed Chats':type==='call'?'Accepted Calls':type==='helpdesk'?'Solved Tickets':'Completed Tickets'}
+function renderWorktypeHeatmap(type,targetId){const root=document.getElementById(targetId);if(!root)return;const data=buildWorktypeHeatmapData(type),heatVals=data.flatMap(r=>r.values),heatMin=Math.min(...heatVals),heatMax=Math.max(...heatVals),hourTotals=data[0].values.map((_,i)=>data.reduce((s,r)=>s+r.values[i],0)),grand=hourTotals.reduce((a,b)=>a+b,0),sorted=[...data].sort((a,b)=>b.values.reduce((x,y)=>x+y,0)-a.values.reduce((x,y)=>x+y,0));root.innerHTML='<div class="worktype-hm-layout"><div><div class="worktype-hm-wrap"><table class="worktype-hm-table"><thead><tr><th>#</th><th class="agent-col">Agent</th><th>Till Now</th>'+worktypeHeatmapShort.map((x,i)=>'<th>'+x+(i===8?'<br><span style="font-weight:500;color:#64748b">In Progress</span>':'')+'</th>').join('')+'</tr></thead><tbody class="wt-hm-body"></tbody></table></div><div class="heat-legend"><span>Lower Count · '+heatMin+'</span><span class="heat-gradient"></span><span>Higher Count · '+heatMax+'</span></div></div><aside class="wt-hm-side"><div class="wt-hm-side-head"><div class="wt-hm-side-title">Selected Hour Analysis</div><span class="updated-chip">3:30 PM</span></div><div class="wt-hm-side-body"><div class="wt-hm-detail"></div></div></aside></div>';const body=root.querySelector('.wt-hm-body');body.innerHTML='<tr class="all-row"><td>–</td><td class="agent-col">All Agents</td><td class="wt-hm-cell" tabindex="0" data-agent="All Agents" data-kind="till" data-idx="-1" data-total="'+grand+'">'+grand+'</td>'+hourTotals.map((v,i)=>'<td class="wt-hm-cell" tabindex="0" data-agent="All Agents" data-kind="hour" data-idx="'+i+'" data-total="'+v+'">'+v+'</td>').join('')+'</tr>'+sorted.map((r,rank)=>{const till=r.values.reduce((a,b)=>a+b,0);return '<tr><td>'+(rank+1)+'</td><td class="agent-col">'+r.agent+'</td><td class="wt-hm-cell" tabindex="0" data-agent="'+r.agent+'" data-kind="till" data-idx="-1" data-total="'+till+'">'+till+'</td>'+r.values.map((v,i)=>'<td class="wt-hm-cell" style="background:'+heatColor(v,heatMin,heatMax)+'" tabindex="0" data-agent="'+r.agent+'" data-kind="hour" data-idx="'+i+'" data-total="'+v+'">'+v+'</td>').join('')+'</tr>'}).join('');const show=cell=>{root.querySelectorAll('.wt-hm-cell').forEach(c=>c.classList.remove('selected'));cell.classList.add('selected');const agent=cell.dataset.agent,idx=Number(cell.dataset.idx),isTill=cell.dataset.kind==='till';const rows=(isTill?sorted.map(r=>({agent:r.agent,value:r.values.reduce((a,b)=>a+b,0)})):sorted.map(r=>({agent:r.agent,value:r.values[idx]}))).sort((a,b)=>b.value-a.value);const team=rows.reduce((s,r)=>s+r.value,0),selected=agent==='All Agents'?team:Number(cell.dataset.total),share=team?selected/team:0,rank=agent==='All Agents'?null:rows.findIndex(r=>r.agent===agent)+1,max=Math.max(...rows.map(r=>r.value),1);root.querySelector('.wt-hm-detail').innerHTML='<div class="hm-agent">'+agent+'</div><div class="hm-period">'+(isTill?'Till Now · 7:00 AM–3:30 PM':worktypeHeatmapPeriods[idx])+'</div><div class="wt-hm-metrics"><div class="wt-hm-metric"><div class="label">Selected '+completionLabel(type)+'</div><div class="value">'+selected+'</div></div><div class="wt-hm-metric"><div class="label">Team Total '+(isTill?'Till Now':'This Hour')+'</div><div class="value">'+team+'</div></div><div class="wt-hm-metric"><div class="label">Share of Team</div><div class="value">'+(share*100).toFixed(1)+'%</div></div><div class="wt-hm-metric"><div class="label">Rank '+(isTill?'Till Now':'This Hour')+'</div><div class="value">'+(rank?rank+' / '+rows.length:'–')+'</div></div></div><div class="wt-hm-visuals"><div class="hm-card"><div class="hm-card-title">Contribution Share</div><div class="wt-donut-holder"><div class="wt-donut" style="--pct:'+(share*100).toFixed(1)+'"></div><div class="wt-donut-center"><b>'+(share*100).toFixed(1)+'%</b><span>of team</span></div></div></div><div class="hm-card"><div class="hm-card-title">Agent Comparison</div><div class="wt-compare">'+rows.map(r=>'<div class="wt-compare-row '+(r.agent===agent?'active':'')+'"><div>'+r.agent+'</div><div class="bar"><i style="width:'+(r.value/max*100)+'%"></i></div><div style="text-align:right">'+r.value+'</div></div>').join('')+'</div></div></div><div class="hm-note"><i>i</i><span>Counts are completed items for this work type; the current hour refreshes every 30 minutes.</span></div>'};root.querySelectorAll('.wt-hm-cell').forEach(cell=>{cell.addEventListener('click',()=>show(cell));cell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show(cell)}})});const def=Array.from(root.querySelectorAll('.wt-hm-cell')).find(c=>c.dataset.agent==='Agent B'&&c.dataset.idx==='4')||root.querySelector('.wt-hm-cell');if(def)show(def)}
+
+function renderForecastPage(type){const name=type==='livechat'?'LiveChat':'Call',f=forecasts[type],vals=dayProgress[type],rows=cumulativeRows(type),actual=vals[vals.length-1],unit=type==='livechat'?'chats':'calls';const html='<div class="grid kpis three"><div class="panel kpi"><div class="kpi-label">Forecast Value</div><div class="kpi-value">'+f.value+'</div><div class="kpi-sub">Today forecast</div></div><div class="panel kpi"><div class="kpi-label">90% Forecast Range</div><div class="kpi-value" style="font-size:22px">'+f.lower+' – '+f.upper+'</div><div class="kpi-sub">Lower / Upper Bound</div></div><div class="panel kpi"><div class="kpi-label">Actual to 4PM</div><div class="kpi-value">'+actual+'</div><div class="kpi-sub">Sample actual</div></div></div><div class="section-gap"></div><section class="panel"><div class="panel-head"><div><div class="panel-title">Cumulative Completed Workload</div><div class="panel-note">Hover over the blue points to see time, cumulative actual and forecast bounds.</div></div><span class="updated-chip">30-min refresh</span></div><div class="panel-body"><div class="chartbox" id="'+type+'DayChart"></div><div class="legend"><span><i style="background:#2563eb"></i>Cumulative Actual</span><span><i style="background:#f97316"></i>Forecast</span><span><i style="background:#fb923c"></i>Lower / Upper</span></div></div></section><div class="section-gap"></div><section class="panel worktype-heatmap"><div class="panel-head"><div><div class="panel-title">Agent Completion Heatmap</div><div class="panel-note">Completed '+unit+' by agent and hour. Color scale is normalized to this page data range; current hour updates every 30 minutes.</div></div><span class="updated-chip">As of 3:30 PM</span></div><div class="panel-body"><div id="'+type+'Heatmap"></div></div></section><div class="section-gap"></div><section class="panel"><div class="panel-head"><div><div class="panel-title">Half-hour Workload Progress</div><div class="panel-note">Operating window only: 07:00–16:00.</div></div></div><div class="panel-body"><div class="table-wrap"><table class="table"><thead><tr><th>Time Interval</th><th>Refresh Time</th><th>Agent A</th><th>Agent B</th><th>Agent C</th><th>Completed Workload</th><th>Cumulative Completed</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r.interval+'</td><td>'+r.time+'</td><td>'+r.a+'</td><td>'+r.b+'</td><td>'+r.c+'</td><td class="total">'+r.done+'</td><td class="total">'+r.cum+'</td></tr>').join('')+'</tbody></table></div></div></section>';document.getElementById(type+'Content').innerHTML=html;svgLineChart(document.getElementById(type+'DayChart'),{labels:dayProgress.times,series:[{name:'Cumulative Actual',values:vals,cls:'line-actual'}],extra:[{name:'Forecast',value:f.value},{name:'Lower Bound',value:f.lower},{name:'Upper Bound',value:f.upper}]});renderWorktypeHeatmap(type,type+'Heatmap')}
+
+function backlogPage(type){const name=type==='pa'?'PA Ticket':'PQ Ticket';const initial=type==='pa'?54:42;const inc=type==='pa'?[2,3,4,5,6,7,8,6,5,4,5,3,3,2,2,1,1,1]:[1,2,2,4,5,6,6,5,4,4,3,3,2,2,1,1,1,1];const done=type==='pa'?[0,0,1,2,4,6,9,8,8,7,7,6,5,4,4,3,2,2]:[0,0,0,1,2,4,6,7,7,6,5,5,4,4,3,3,2,2];let cur=initial;const rows=dayProgress.times.map((t,i)=>{cur+=inc[i]-done[i];return {t,newv:inc[i],done:done[i],net:inc[i]-done[i],cur}});const html='<div class="grid kpis three"><div class="panel kpi"><div class="kpi-label">Initial Workload</div><div class="kpi-value">'+initial+'</div><div class="kpi-sub">Opening backlog</div></div><div class="panel kpi"><div class="kpi-label">Completed</div><div class="kpi-value">'+done.reduce((a,b)=>a+b,0)+'</div><div class="kpi-sub">Today</div></div><div class="panel kpi"><div class="kpi-label">Current Workload</div><div class="kpi-value">'+cur+'</div><div class="kpi-sub">Remaining backlog</div></div></div><div class="section-gap"></div><section class="panel"><div class="panel-head"><div><div class="panel-title">Current Workload Trend</div><div class="panel-note">Actual backlog movement only; no forecast required.</div></div></div><div class="panel-body"><div class="chartbox" id="'+type+'Trend"></div></div></section><div class="section-gap"></div><section class="panel"><div class="panel-head"><div><div class="panel-title">Half-hour Workload Progress</div></div></div><div class="panel-body"><div class="table-wrap"><table class="table"><thead><tr><th>Refresh Time</th><th>New Workload</th><th>Completed</th><th>Net Change</th><th>Current Workload</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r.t+'</td><td>'+r.newv+'</td><td>'+r.done+'</td><td>'+(r.net>0?'+':'')+r.net+'</td><td class="total">'+r.cur+'</td></tr>').join('')+'</tbody></table></div></div></section>';document.getElementById(type+'Content').innerHTML=html;svgLineChart(document.getElementById(type+'Trend'),{labels:dayProgress.times,series:[{name:'Current Workload',values:rows.map(r=>r.cur),cls:'line-backlog'}]});}
+
+const agingData={
+ white:[['LPN',34,13,12,9,'51h','CL123456'],['MBPG',29,11,10,8,'48h','CT123456'],['HPN',25,9,9,7,'46h','CH782341'],['TPD',22,8,8,6,'42h','CTD557821'],['FPD',18,6,7,5,'37h','CFP663190'],['GPG',15,5,6,4,'33h','CGP441208']],
+ yellow:[['LPN',30,12,10,8,'61h','YL338721'],['MBPG',26,10,9,7,'57h','YM228341'],['HPN',23,9,8,6,'54h','YH662904'],['TPD',20,7,7,6,'49h','YT814205'],['FPD',16,6,6,4,'45h','YF391774'],['GPG',14,5,5,4,'41h','YG507316']],
+ helpdesk:[['LPN',58,21,20,17,'66h','HD188221'],['MBPG',52,19,18,15,'62h','HD194422'],['HPN',47,17,16,14,'59h','HD207315'],['TPD',42,15,15,12,'55h','HD214607'],['FPD',36,13,12,11,'51h','HD226481'],['GPG',31,11,11,9,'47h','HD239156']]
+};
+function agingPage(type){const sourceRows=agingData[type],name=type==='white'?'RMA White':type==='yellow'?'RMA Yellow':'HelpDesk';const pending=sourceRows.reduce((a,r)=>a+r[1],0),hard=sourceRows.reduce((a,r)=>a+r[2],0),ideal=sourceRows.reduce((a,r)=>a+r[3],0),low=sourceRows.reduce((a,r)=>a+r[4],0);document.getElementById(type+'Content').innerHTML='<div class="grid kpis"><div class="panel kpi"><div class="kpi-label">Pending</div><div class="kpi-value">'+pending+'</div><div class="kpi-sub">Current pending tickets</div></div><div class="panel kpi"><div class="kpi-label">Hard Due Today</div><div class="kpi-value">'+hard+'</div><div class="kpi-sub">Age at 4PM ≥ 48h</div></div><div class="panel kpi"><div class="kpi-label">Ideal Due Today</div><div class="kpi-value">'+ideal+'</div><div class="kpi-sub">Age at 4PM [24h,48h)</div></div><div class="panel kpi"><div class="kpi-label">Low Priority</div><div class="kpi-value">'+low+'</div><div class="kpi-sub">Age at 4PM &lt; 24h</div></div></div><div class="section-gap"></div><section class="panel"><div class="panel-head"><div><div class="panel-title">Site Ticket Status</div><div class="panel-note">Filter sites, change sort order, or click a site to inspect sample ticket details.</div></div><div class="panel-actions"><select class="mini-select" id="'+type+'SiteFilter"><option value="all">All Sites</option>'+sourceRows.map(r=>'<option value="'+r[0]+'">'+r[0]+'</option>').join('')+'</select><select class="mini-select" id="'+type+'Sort"><option value="hard">Sort: Hard Due</option><option value="ideal">Sort: Ideal Due</option><option value="pending">Sort: Pending</option><option value="oldest">Sort: Oldest Age</option></select><span class="updated-chip">30-min refresh</span></div></div><div class="panel-body"><div class="grid two"><div><div class="aging-bars" id="'+type+'Bars"></div><div class="legend"><span><i style="background:#dc2626"></i>Hard Due</span><span><i style="background:#f59e0b"></i>Ideal Due</span><span><i style="background:#94a3b8"></i>Low Priority</span></div></div><div><div class="table-wrap"><table class="table"><thead><tr><th>Site</th><th>Pending</th><th>Hard Due</th><th>Ideal Due</th><th>Oldest Age</th><th>Order / Ticket</th></tr></thead><tbody id="'+type+'SiteTable"></tbody></table></div><div id="'+type+'Detail" class="notice" style="margin-top:12px">Select a site to view sample PendingAgentTime and ticket detail.</div></div></div></div></section><div class="section-gap"></div><section class="panel worktype-heatmap"><div class="panel-head"><div><div class="panel-title">Agent Completion Heatmap</div><div class="panel-note">Completed '+name+' tickets by agent and hour. Color scale is normalized to this page data range; current hour updates every 30 minutes.</div></div><span class="updated-chip">As of 3:30 PM</span></div><div class="panel-body"><div id="'+type+'Heatmap"></div></div></section>';const renderSites=()=>{const filter=document.getElementById(type+'SiteFilter').value,sort=document.getElementById(type+'Sort').value;let rows=sourceRows.filter(r=>filter==='all'||r[0]===filter).slice();const age=r=>parseFloat(r[5])||0,key={hard:2,ideal:3,pending:1};rows.sort((a,b)=>sort==='oldest'?age(b)-age(a):b[key[sort]]-a[key[sort]]);const max=Math.max(...rows.map(r=>r[1]),1);document.getElementById(type+'Bars').innerHTML=rows.map(r=>{
+ const hw=r[2]/max*100,iw=r[3]/max*100,lw=r[4]/max*100;
+ const tooltip=r[0]+' · Pending '+r[1]+' · Hard Due '+r[2]+' · Ideal Due '+r[3]+' · Low Priority '+r[4];
+ return '<div class="aging-row clickable" data-aging="'+type+','+r[0]+'" data-tooltip="'+tooltip+'"><div>'+r[0]+'</div><div class="aging-stack" title="'+tooltip+'"><span class="hard" style="width:'+hw+'%" title="Hard Due: '+r[2]+'">'+(hw>=8?r[2]:'')+'</span><span class="ideal" style="width:'+iw+'%" title="Ideal Due: '+r[3]+'">'+(iw>=8?r[3]:'')+'</span><span class="low" style="width:'+lw+'%" title="Low Priority: '+r[4]+'">'+(lw>=8?r[4]:'')+'</span></div><b style="text-align:right">'+r[1]+'</b></div>'
+}).join('');document.getElementById(type+'SiteTable').innerHTML=rows.map(r=>'<tr class="interactive-row" data-aging="'+type+','+r[0]+'"><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[5]+'</td><td><span class="link-btn">'+r[6]+'</span></td></tr>').join('');bindAging(type)};document.getElementById(type+'SiteFilter').addEventListener('change',renderSites);document.getElementById(type+'Sort').addEventListener('change',renderSites);renderSites();renderWorktypeHeatmap(type,type+'Heatmap')}
+
+function bindAging(type){document.querySelectorAll('[data-aging^="'+type+',"]').forEach(el=>el.addEventListener('click',()=>{const site=el.dataset.aging.split(',')[1],r=agingData[type].find(x=>x[0]===site),detail=document.getElementById(type+'Detail');detail.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:start"><div><b>'+site+' sample pending ticket</b><div style="margin-top:5px">Ticket / Order: <span class="link-btn">'+r[6]+'</span></div><div>PendingAgentTime: 2026-09-14 10:15</div><div>Current Age: '+r[5]+'</div></div><div><span class="pill '+(r[2]>10?'danger':'warning')+'">'+r[2]+' Hard Due</span></div></div>'}))}
+
+function renderGauge(el){const [v,s,w]=el.dataset.gauge.split(',').map(Number),max=w*1.28,pos=Math.max(0,Math.min(100,v/max*100));el.innerHTML='<div class="gauge-track"><span></span><span></span><span></span></div><div class="gauge-pos"><i class="gauge-marker" style="left:'+pos+'%"></i></div><div class="panel-note">Safe ≤ '+s+' · Warning ≤ '+w+' · Over &gt; '+w+'</div>'}
+function componentStack(elId,rows){const el=document.getElementById(elId),total=rows.reduce((a,r)=>a+r.value,0);el.innerHTML='<div class="subhead">Workload Composition</div><div class="stack">'+rows.map(r=>{const pct=r.value/total*100;return '<span style="width:'+pct+'%;background:'+colors[r.name]+'" title="'+r.name+': '+r.value+'">'+(pct>=9?r.value:'')+'</span>'}).join('')+'</div><div class="stack-legend">'+rows.map(r=>'<div class="stack-row"><div>'+r.name+'</div><div class="bar" title="'+r.name+': '+r.value+'"><i style="width:'+(r.value/Math.max(...rows.map(x=>x.value))*100)+'%;background:'+colors[r.name]+'"></i></div><b style="text-align:right">'+r.value+'</b></div>').join('')+'</div>'}
+function siteBreakdown(elId,rows,weight){const el=document.getElementById(elId),max=Math.max(...rows.map(r=>r[1]));el.innerHTML=rows.map(r=>{const wl=r[1]*weight,tip=r[0]+': '+r[1]+' Hard Due tickets · '+wl+' workload';return '<div class="site-row"><div>'+r[0]+'</div><div class="bar" data-tooltip="'+tip+'" title="'+tip+'" style="height:7px;background:#eef2f7;border-radius:4px;overflow:visible"><i style="display:block;height:100%;width:'+(r[1]/max*100)+'%;background:#dc2626;border-radius:4px"></i></div><div>'+r[1]+'</div><div>'+wl+'</div></div>'}).join('')+'<div class="site-row"><div><b>Total</b></div><div>Count × '+weight+'</div><div><b>'+rows.reduce((a,r)=>a+r[1],0)+'</b></div><div><b>'+rows.reduce((a,r)=>a+r[1]*weight,0)+'</b></div>'}
+
+
+const summaryHeatmapData=[
+ {agent:'Agent C',values:[32,46,57,50,41,44,38,24,20]},
+ {agent:'Agent G',values:[30,48,52,43,39,42,36,26,18]},
+ {agent:'Agent E',values:[23,41,50,48,37,40,34,26,19]},
+ {agent:'Agent A',values:[25,36,45,40,30,37,33,25,18]},
+ {agent:'Agent B',values:[20,33,42,38,35,39,34,24,16]},
+ {agent:'Agent D',values:[18,28,40,35,33,36,31,22,15]},
+ {agent:'Agent F',values:[15,26,32,28,26,30,26,18,12]},
+ {agent:'Agent H',values:[13,21,32,26,19,28,23,17,11]}
+];
+const summaryHeatmapPeriods=['7:00–8:00 AM','8:00–9:00 AM','9:00–10:00 AM','10:00–11:00 AM','11:00 AM–12:00 PM','12:00–1:00 PM','1:00–2:00 PM','2:00–3:00 PM','3:00–4:00 PM (In Progress)'];
+const summaryWorkTypes=[
+ ['LiveChat','#2563eb',.22],
+ ['Call','#10b981',.32],
+ ['PA Ticket','#f97316',.10],
+ ['PQ Ticket','#7c3aed',.07],
+ ['RMA White','#ef4444',.12],
+ ['RMA Yellow','#eab308',.09],
+ ['HelpDesk','#14b8a6',.08]
+];
+function heatColor(v,min,max){
+ const span=Math.max(1,max-min),t=Math.max(0,Math.min(1,(v-min)/span));
+ const hue=120*(1-t),light=88-10*t;
+ return 'hsl('+hue.toFixed(0)+' 78% '+light.toFixed(0)+'%)'
+}
+function workloadBreakdown(total,seed){
+ let remain=total;
+ return summaryWorkTypes.map((w,i)=>{
+   if(i===summaryWorkTypes.length-1)return {name:w[0],color:w[1],value:Math.round(remain*10)/10};
+   const wobble=((seed+i*7)%5-2)*.006;
+   const val=Math.max(0,Math.round(total*(w[2]+wobble)*10)/10);
+   remain=Math.max(0,remain-val);
+   return {name:w[0],color:w[1],value:val}
+ })
+}
+function showHeatmapDetail(agent,period,total,seed,cell){
+ document.querySelectorAll('#summaryHeatmap .hm-cell').forEach(c=>c.classList.remove('selected'));
+ if(cell)cell.classList.add('selected');
+ const detail=document.getElementById('summaryHeatmapDetail');
+ const rows=workloadBreakdown(total,seed);
+ const periodLabel=(cell&&cell.dataset.periodKey)||period;
+ const isTill=(cell&&cell.dataset.kind==='till')||/^Till Now/.test(periodLabel);
+ let agents=[...summaryHeatmapData].sort((a,b)=>b.values.reduce((x,y)=>x+y,0)-a.values.reduce((x,y)=>x+y,0));
+ let teamTotal=0, selectedValue=total;
+ if(isTill){
+   agents=agents.map(a=>({agent:a.agent,value:a.values.reduce((x,y)=>x+y,0)})).sort((a,b)=>b.value-a.value);
+   teamTotal=agents.reduce((s,a)=>s+a.value,0);
+ }else{
+   const idx=summaryHeatmapPeriods.indexOf(periodLabel);
+   agents=agents.map(a=>({agent:a.agent,value:a.values[idx]})).sort((a,b)=>b.value-a.value);
+   teamTotal=agents.reduce((s,a)=>s+a.value,0);
+ }
+ if(agent==='All Agents') selectedValue=teamTotal;
+ const rank=agent==='All Agents'?1:(agents.findIndex(a=>a.agent===agent)+1||agents.length);
+ const share=teamTotal?selectedValue/teamTotal:0;
+ const other=Math.max(0,teamTotal-selectedValue);
+ const maxVal=Math.max(...agents.map(a=>a.value),1);
+ detail.innerHTML=
+   '<div class="hm-agent">'+agent+'</div>'+
+   '<div class="hm-period">'+periodLabel+'</div>'+
+   '<div class="hm-analysis-grid">'+
+      '<div class="hm-metric"><div class="label">Selected Workload</div><div class="value">'+selectedValue.toLocaleString(undefined,{maximumFractionDigits:1})+'</div></div>'+
+      '<div class="hm-metric"><div class="label">Team Total '+(isTill?'Till Now':'in This Hour')+'</div><div class="value">'+teamTotal.toLocaleString(undefined,{maximumFractionDigits:1})+'</div></div>'+
+      '<div class="hm-metric"><div class="label">Share of '+(isTill?'Team Total':'This Hour')+'</div><div class="value">'+(share*100).toFixed(1)+'%</div></div>'+
+      '<div class="hm-metric"><div class="label">Rank '+(isTill?'Till Now':'in This Hour')+'</div><div class="value">'+(agent==='All Agents'?'–':'<span style="white-space:nowrap">'+rank+' / '+agents.length+'</span>')+'</div></div>'+
+   '</div>'+
+   '<div class="hm-vis-grid">'+
+      '<div class="hm-card"><div class="hm-card-title">'+agent+' Share '+(isTill?'Till Now':'for '+periodLabel)+'</div>'+
+         '<div class="hm-donut-wrap"><div class="hm-donut-holder"><div class="hm-donut" style="--pct:'+(share*100).toFixed(1)+'"></div><div class="hm-donut-center"><b>'+(share*100).toFixed(1)+'%</b><span>'+(isTill?'of team total':'of this hour')+'</span></div></div>'+
+         '<div class="hm-donut-legend">'+
+           '<div class="row"><div class="left"><i class="hm-dot" style="background:#2563eb"></i><span>'+agent+'</span></div><b>'+selectedValue.toLocaleString(undefined,{maximumFractionDigits:1})+' ('+(share*100).toFixed(1)+'%)</b></div>'+
+           '<div class="row"><div class="left"><i class="hm-dot" style="background:#cbd5e1"></i><span>'+(agent==='All Agents'?'Remaining Scope':'Other Agents')+'</span></div><b>'+other.toLocaleString(undefined,{maximumFractionDigits:1})+' ('+((1-share)*100).toFixed(1)+'%)</b></div>'+
+         '</div></div></div>'+
+      '<div class="hm-card"><div class="hm-card-title">'+(isTill?'Till-Now':'Hour')+' Comparison</div><div class="hm-compare-list">'+
+         agents.map(a=>'<div class="hm-compare-row '+(a.agent===agent?'active':'')+'"><div class="name">'+a.agent+'</div><div class="bar"><i style="width:'+(a.value/maxVal*100)+'%"></i></div><div style="text-align:right;font-weight:850">'+a.value+'</div></div>').join('')+
+      '</div></div>'+
+   '</div>'+
+   '<div class="hm-breakdown-box"><div class="hm-breakdown-head"><div>Work Type</div><div style="text-align:right">Workload</div></div>'+
+   rows.map(r=>'<div class="hm-breakdown-row"><div class="hm-worktype"><i class="hm-dot" style="background:'+r.color+'"></i>'+r.name+'</div><div class="hm-breakdown-value">'+r.value.toLocaleString(undefined,{maximumFractionDigits:1})+'</div></div>').join('')+
+   '</div>'+
+   '<div class="hm-note"><i>i</i><span>Click another cell to update the selected hour analysis.</span></div>'
+}
+
+function initSummaryHeatmap(){
+ const body=document.getElementById('summaryHeatmapBody');
+ if(!body)return;
+ const heatVals=summaryHeatmapData.flatMap(r=>r.values),heatMin=Math.min(...heatVals),heatMax=Math.max(...heatVals);
+ const hourTotals=summaryHeatmapData[0].values.map((_,i)=>summaryHeatmapData.reduce((s,r)=>s+r.values[i],0));
+ const grand=hourTotals.reduce((a,b)=>a+b,0);
+ const allRow='<tr class="all-row"><td class="rank-col">–</td><td class="agent-col">All Agents</td><td class="till-col hm-cell" data-agent="All Agents" data-kind="till" data-period="Till Now" data-period-key="Till Now" data-total="'+grand+'" data-seed="90">'+grand.toLocaleString()+'</td>'+
+   hourTotals.map((v,i)=>'<td class="hm-cell" data-agent="All Agents" data-kind="hour" data-period="'+summaryHeatmapPeriods[i]+'" data-period-key="'+summaryHeatmapPeriods[i]+'" data-total="'+v+'" data-seed="'+(90+i)+'">'+v+'</td>').join('')+'</tr>';
+ const sorted=[...summaryHeatmapData].sort((a,b)=>b.values.reduce((x,y)=>x+y,0)-a.values.reduce((x,y)=>x+y,0));
+ const rows=sorted.map((r,rank)=>{
+   const till=r.values.reduce((a,b)=>a+b,0);
+   return '<tr><td class="rank-col">'+(rank+1)+'</td><td class="agent-col">'+r.agent+'</td><td class="till-col hm-cell" data-agent="'+r.agent+'" data-kind="till" data-period="Till Now · 7:00 AM–3:30 PM" data-period-key="Till Now" data-total="'+till+'" data-seed="'+(rank+10)+'">'+till+'</td>'+
+     r.values.map((v,i)=>'<td class="hm-cell" style="background:'+heatColor(v,heatMin,heatMax)+'" data-agent="'+r.agent+'" data-kind="hour" data-period="'+summaryHeatmapPeriods[i]+'" data-period-key="'+summaryHeatmapPeriods[i]+'" data-total="'+v+'" data-seed="'+(rank*11+i+1)+'">'+v+'</td>').join('')+'</tr>'
+ }).join('');
+ body.innerHTML=allRow+rows;
+ const summaryLegend=document.querySelector('#summaryHeatmap').closest('.heatmap-wrap')?.parentElement?.querySelector('.heat-legend');if(summaryLegend){const spans=summaryLegend.querySelectorAll('span');if(spans[0])spans[0].textContent='Lower Workload · '+heatMin;if(spans[2])spans[2].textContent='Higher Workload · '+heatMax}
+ body.querySelectorAll('.hm-cell').forEach(cell=>{cell.tabIndex=0;const open=()=>showHeatmapDetail(cell.dataset.agent,cell.dataset.period,Number(cell.dataset.total),Number(cell.dataset.seed),cell);cell.addEventListener('click',open);cell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}})});
+ const defaultCell=Array.from(body.querySelectorAll('.hm-cell')).find(c=>c.dataset.agent==='Agent B'&&c.dataset.periodKey==='8:00–9:00 AM') || body.querySelector('.hm-cell');
+ if(defaultCell)defaultCell.click()
+}
+function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));document.getElementById('pageKicker').textContent=pageMeta[page][0];document.getElementById('pageTitle').textContent=pageMeta[page][1];document.getElementById('snapshotLabel').classList.toggle('hidden',!['livechat','call','pa','pq','white','yellow','helpdesk','email'].includes(page));window.scrollTo(0,0)}
+
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.go)));
+document.getElementById('saveSettings').addEventListener('click',e=>{e.currentTarget.textContent='Saved';setTimeout(()=>e.currentTarget.textContent='Save Settings',1200)});
+
+initSummaryHeatmap();
+renderForecastPage('livechat');renderForecastPage('call');backlogPage('pa');backlogPage('pq');agingPage('white');agingPage('yellow');agingPage('helpdesk');
+document.querySelectorAll('[data-gauge]').forEach(renderGauge);
+componentStack('morningStack',[{name:'Call',value:1455},{name:'LiveChat',value:304},{name:'HelpDesk',value:175},{name:'RMA White',value:220},{name:'RMA Yellow',value:180}]);
+componentStack('noonStack',[{name:'Call',value:480},{name:'LiveChat',value:100},{name:'HelpDesk',value:92},{name:'RMA White',value:95},{name:'RMA Yellow',value:77.5}]);
+componentStack('afternoonStack',[{name:'HelpDesk',value:25},{name:'RMA White',value:25},{name:'RMA Yellow',value:30}]);
+siteBreakdown('whiteSites',[['LPN',4],['MBPG',3],['HPN',2],['TPD',2],['FPD',1],['GPG',1]],2.5);siteBreakdown('yellowSites',[['LPN',5],['MBPG',4],['HPN',3],['TPD',2],['FPD',2],['GPG',1]],2.5);
+})();
+</script>
+</body>
+</html>
