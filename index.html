@@ -49,6 +49,41 @@
 .hm-breakdown-value{text-align:right;font-weight:850;font-size:11px}
 .summary-live{display:flex;align-items:center;gap:7px;color:#15803d;font-size:10px;font-weight:850}
 .summary-live i{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block}
+.hm-filter-wrap{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:12px}
+.hm-filter-label{font-size:10px;color:var(--muted);font-weight:800}
+.hm-multiselect{position:relative;min-width:240px}
+.hm-ms-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);background:#fff;color:#24324a;border-radius:8px;padding:8px 10px;font:inherit;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.hm-ms-trigger:hover{border-color:#aebed1;background:#fbfdff}
+.hm-ms-trigger:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
+.hm-ms-trigger .left{display:flex;align-items:center;gap:8px;min-width:0}
+.hm-ms-trigger .summary{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hm-ms-trigger .count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#edf4ff;color:#174ea6;font-size:9px;font-weight:900}
+.hm-ms-trigger .chev{font-size:11px;color:#64748b;transition:transform .12s ease}
+.hm-multiselect.open .hm-ms-trigger .chev{transform:rotate(180deg)}
+.hm-ms-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:280px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 14px 32px rgba(15,23,42,.16);overflow:hidden}
+.hm-multiselect.open .hm-ms-menu{display:block}
+.hm-ms-head{padding:10px 12px;border-bottom:1px solid var(--line);background:#fafbfc}
+.hm-ms-title{font-size:10px;font-weight:900}
+.hm-ms-note{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.35}
+.hm-ms-options{padding:6px}
+.hm-ms-option{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:10px;font-weight:750;color:#344155}
+.hm-ms-option:hover{background:#f6f8fb}
+.hm-ms-option input{width:14px;height:14px;accent-color:#2563eb}
+.hm-ms-option i{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.hm-ms-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border-top:1px solid var(--line);background:#fafbfc}
+.hm-ms-foot span{font-size:9px;color:var(--muted)}
+.hm-ms-link{border:0;background:none;color:#2563eb;font:inherit;font-size:9px;font-weight:850;cursor:pointer;padding:3px 0}
+.hm-ms-foot-actions{display:flex;align-items:center;gap:8px}
+.hm-ms-confirm{border:0;background:#2563eb;color:#fff;border-radius:7px;padding:7px 12px;font:inherit;font-size:9px;font-weight:900;cursor:pointer}
+.hm-ms-confirm:hover{background:#1d4ed8}
+.hm-ms-confirm:disabled{background:#cbd5e1;color:#64748b;cursor:not-allowed}
+.hm-ms-status{font-size:9px;color:var(--muted)}
+.hm-ms-status.invalid{color:#dc2626;font-weight:800}
+
+.hm-active-types{margin-top:6px;font-size:9px;color:var(--muted);line-height:1.4}
+.hm-active-types b{color:#334155}
+@media(max-width:760px){.hm-filter-wrap{justify-content:stretch;align-items:stretch;flex-direction:column}.hm-multiselect{min-width:0;width:100%}.hm-ms-menu{left:0;right:auto;width:min(100%,320px)}}
+
 .hm-analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
 .hm-metric{border:1px solid var(--line);border-radius:8px;padding:11px 12px;background:#fbfcfe;min-height:76px}
 .hm-metric .label{font-size:10px;color:var(--muted);font-weight:750;line-height:1.3;min-height:26px}
@@ -233,6 +268,40 @@
             </div>
           </div>
           <div class="panel-body">
+            <div class="hm-filter-wrap">
+              <div class="hm-filter-label">Work Types</div>
+              <div class="hm-multiselect" id="summaryWorkTypeDropdown">
+                <button type="button" class="hm-ms-trigger" id="summaryWorkTypeTrigger" aria-haspopup="true" aria-expanded="false">
+                  <span class="left">
+                    <span class="summary" id="summaryWorkTypeSummary">All workload types</span>
+                    <span class="count" id="summaryWorkTypeCount">5</span>
+                  </span>
+                  <span class="chev">▾</span>
+                </button>
+                <div class="hm-ms-menu" id="summaryWorkTypeMenu">
+                  <div class="hm-ms-head">
+                    <div class="hm-ms-title">Work Types Included in Workload</div>
+                    <div class="hm-ms-note">Single-select or multi-select. PA Ticket and PQ Ticket are not included in workload calculation.</div>
+                  </div>
+                  <div class="hm-ms-options" id="summaryWorkTypeFilter">
+                    <label class="hm-ms-option"><input type="checkbox" value="LiveChat" checked><i style="background:#2563eb"></i>LiveChat</label>
+                    <label class="hm-ms-option"><input type="checkbox" value="Call" checked><i style="background:#10b981"></i>Call</label>
+                    <label class="hm-ms-option"><input type="checkbox" value="RMA White" checked><i style="background:#ef4444"></i>RMA White</label>
+                    <label class="hm-ms-option"><input type="checkbox" value="RMA Yellow" checked><i style="background:#eab308"></i>RMA Yellow</label>
+                    <label class="hm-ms-option"><input type="checkbox" value="HelpDesk" checked><i style="background:#14b8a6"></i>HelpDesk</label>
+                  </div>
+                  <div class="hm-ms-foot">
+                    <div>
+                      <button type="button" class="hm-ms-link" id="summarySelectAllWorkTypes">Select All</button>
+                      <span class="hm-ms-status" id="summaryWorkTypeDraftStatus">5 selected</span>
+                    </div>
+                    <div class="hm-ms-foot-actions">
+                      <button type="button" class="hm-ms-confirm" id="summaryConfirmWorkTypes">Confirm</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="heatmap-layout">
               <div><div class="heatmap-wrap">
                 <table class="heatmap-table" id="summaryHeatmap">
@@ -458,14 +527,15 @@ const summaryHeatmapData=[
 ];
 const summaryHeatmapPeriods=['7:00–8:00 AM','8:00–9:00 AM','9:00–10:00 AM','10:00–11:00 AM','11:00 AM–12:00 PM','12:00–1:00 PM','1:00–2:00 PM','2:00–3:00 PM','3:00–4:00 PM (In Progress)'];
 const summaryWorkTypes=[
- ['LiveChat','#2563eb',.22],
- ['Call','#10b981',.32],
- ['PA Ticket','#f97316',.10],
- ['PQ Ticket','#7c3aed',.07],
- ['RMA White','#ef4444',.12],
- ['RMA Yellow','#eab308',.09],
- ['HelpDesk','#14b8a6',.08]
+ ['LiveChat','#2563eb',.24],
+ ['Call','#10b981',.38],
+ ['RMA White','#ef4444',.15],
+ ['RMA Yellow','#eab308',.12],
+ ['HelpDesk','#14b8a6',.11]
 ];
+let summarySelectedTypes=new Set(summaryWorkTypes.map(w=>w[0]));
+let summarySelectedCell={agent:'Agent B',kind:'hour',hourIndex:1};
+
 function heatColor(v,min,max){
  const span=Math.max(1,max-min),t=Math.max(0,Math.min(1,(v-min)/span));
  const hue=120*(1-t),light=88-10*t;
@@ -481,73 +551,240 @@ function workloadBreakdown(total,seed){
    return {name:w[0],color:w[1],value:val}
  })
 }
+function summaryHourBreakdown(agentIndex,hourIndex){
+ const total=summaryHeatmapData[agentIndex].values[hourIndex];
+ return workloadBreakdown(total,agentIndex*17+hourIndex*7+5)
+}
+function summaryFilteredBreakdown(agentIndex,hourIndex){
+ return summaryHourBreakdown(agentIndex,hourIndex).filter(r=>summarySelectedTypes.has(r.name))
+}
+function summaryFilteredHour(agentIndex,hourIndex){
+ return summaryFilteredBreakdown(agentIndex,hourIndex).reduce((s,r)=>s+r.value,0)
+}
+function summaryFilteredTill(agentIndex){
+ return summaryHeatmapPeriods.reduce((s,_,hourIndex)=>s+summaryFilteredHour(agentIndex,hourIndex),0)
+}
+function summaryAggregateBreakdown(agentIndex,hourIndex){
+ const names=summaryWorkTypes.filter(w=>summarySelectedTypes.has(w[0])).map(w=>({name:w[0],color:w[1],value:0}));
+ const map=Object.fromEntries(names.map(r=>[r.name,r]));
+ const agentIndexes=agentIndex<0?summaryHeatmapData.map((_,i)=>i):[agentIndex];
+ const hourIndexes=hourIndex<0?summaryHeatmapPeriods.map((_,i)=>i):[hourIndex];
+ agentIndexes.forEach(ai=>hourIndexes.forEach(hi=>{
+   summaryFilteredBreakdown(ai,hi).forEach(r=>{map[r.name].value+=r.value})
+ }));
+ return names.map(r=>({...r,value:Math.round(r.value*10)/10}))
+}
+function summaryAgentValues(hourIndex){
+ return summaryHeatmapData.map((a,ai)=>({
+   agent:a.agent,
+   value:Math.round((hourIndex<0?summaryFilteredTill(ai):summaryFilteredHour(ai,hourIndex))*10)/10
+ })).sort((a,b)=>b.value-a.value)
+}
+function summaryTeamTotal(hourIndex){
+ return summaryAgentValues(hourIndex).reduce((s,a)=>s+a.value,0)
+}
+function fmtSummary(v){
+ return Number(v).toLocaleString(undefined,{maximumFractionDigits:1})
+}
+function selectedTypesText(){
+ return summaryWorkTypes.filter(w=>summarySelectedTypes.has(w[0])).map(w=>w[0]).join(', ')
+}
+
 function showHeatmapDetail(agent,period,total,seed,cell){
  document.querySelectorAll('#summaryHeatmap .hm-cell').forEach(c=>c.classList.remove('selected'));
  if(cell)cell.classList.add('selected');
+
  const detail=document.getElementById('summaryHeatmapDetail');
- const rows=workloadBreakdown(total,seed);
- const periodLabel=(cell&&cell.dataset.periodKey)||period;
- const isTill=(cell&&cell.dataset.kind==='till')||/^Till Now/.test(periodLabel);
- let agents=[...summaryHeatmapData].sort((a,b)=>b.values.reduce((x,y)=>x+y,0)-a.values.reduce((x,y)=>x+y,0));
- let teamTotal=0, selectedValue=total;
- if(isTill){
-   agents=agents.map(a=>({agent:a.agent,value:a.values.reduce((x,y)=>x+y,0)})).sort((a,b)=>b.value-a.value);
-   teamTotal=agents.reduce((s,a)=>s+a.value,0);
- }else{
-   const idx=summaryHeatmapPeriods.indexOf(periodLabel);
-   agents=agents.map(a=>({agent:a.agent,value:a.values[idx]})).sort((a,b)=>b.value-a.value);
-   teamTotal=agents.reduce((s,a)=>s+a.value,0);
- }
- if(agent==='All Agents') selectedValue=teamTotal;
- const rank=agent==='All Agents'?1:(agents.findIndex(a=>a.agent===agent)+1||agents.length);
+ const kind=(cell&&cell.dataset.kind)||'hour';
+ const hourIndex=kind==='till'?-1:Number(cell&&cell.dataset.hourIndex);
+ const agentIndex=agent==='All Agents'?-1:summaryHeatmapData.findIndex(a=>a.agent===agent);
+ const periodLabel=kind==='till'?'Till Now · 7:00 AM–3:30 PM':summaryHeatmapPeriods[hourIndex];
+ const agents=summaryAgentValues(hourIndex);
+ const teamTotal=Math.round(summaryTeamTotal(hourIndex)*10)/10;
+ const selectedValue=agentIndex<0?teamTotal:agents.find(a=>a.agent===agent).value;
+ const rank=agentIndex<0?null:agents.findIndex(a=>a.agent===agent)+1;
  const share=teamTotal?selectedValue/teamTotal:0;
  const other=Math.max(0,teamTotal-selectedValue);
  const maxVal=Math.max(...agents.map(a=>a.value),1);
+ const rows=summaryAggregateBreakdown(agentIndex,hourIndex);
+
+ summarySelectedCell={agent:agent,kind:kind,hourIndex:hourIndex};
+
  detail.innerHTML=
    '<div class="hm-agent">'+agent+'</div>'+
    '<div class="hm-period">'+periodLabel+'</div>'+
+   '<div class="hm-active-types"><b>Included Work Types ('+summarySelectedTypes.size+'/'+summaryWorkTypes.length+')</b>: '+selectedTypesText()+'</div>'+
    '<div class="hm-analysis-grid">'+
-      '<div class="hm-metric"><div class="label">Selected Workload</div><div class="value">'+selectedValue.toLocaleString(undefined,{maximumFractionDigits:1})+'</div></div>'+
-      '<div class="hm-metric"><div class="label">Team Total '+(isTill?'Till Now':'in This Hour')+'</div><div class="value">'+teamTotal.toLocaleString(undefined,{maximumFractionDigits:1})+'</div></div>'+
-      '<div class="hm-metric"><div class="label">Share of '+(isTill?'Team Total':'This Hour')+'</div><div class="value">'+(share*100).toFixed(1)+'%</div></div>'+
-      '<div class="hm-metric"><div class="label">Rank '+(isTill?'Till Now':'in This Hour')+'</div><div class="value">'+(agent==='All Agents'?'–':'<span style="white-space:nowrap">'+rank+' / '+agents.length+'</span>')+'</div></div>'+
+      '<div class="hm-metric"><div class="label">Selected Workload</div><div class="value">'+fmtSummary(selectedValue)+'</div></div>'+
+      '<div class="hm-metric"><div class="label">Team Total '+(kind==='till'?'Till Now':'in This Hour')+'</div><div class="value">'+fmtSummary(teamTotal)+'</div></div>'+
+      '<div class="hm-metric"><div class="label">Share of '+(kind==='till'?'Team Total':'This Hour')+'</div><div class="value">'+(share*100).toFixed(1)+'%</div></div>'+
+      '<div class="hm-metric"><div class="label">Rank '+(kind==='till'?'Till Now':'in This Hour')+'</div><div class="value">'+(rank===null?'–':'<span style="white-space:nowrap">'+rank+' / '+agents.length+'</span>')+'</div></div>'+
    '</div>'+
    '<div class="hm-vis-grid">'+
-      '<div class="hm-card"><div class="hm-card-title">'+agent+' Share '+(isTill?'Till Now':'for '+periodLabel)+'</div>'+
-         '<div class="hm-donut-wrap"><div class="hm-donut-holder"><div class="hm-donut" style="--pct:'+(share*100).toFixed(1)+'"></div><div class="hm-donut-center"><b>'+(share*100).toFixed(1)+'%</b><span>'+(isTill?'of team total':'of this hour')+'</span></div></div>'+
+      '<div class="hm-card"><div class="hm-card-title">'+agent+' Share '+(kind==='till'?'Till Now':'for '+periodLabel)+'</div>'+
+         '<div class="hm-donut-wrap"><div class="hm-donut-holder"><div class="hm-donut" style="--pct:'+(share*100).toFixed(1)+'"></div><div class="hm-donut-center"><b>'+(share*100).toFixed(1)+'%</b><span>'+(kind==='till'?'of team total':'of this hour')+'</span></div></div>'+
          '<div class="hm-donut-legend">'+
-           '<div class="row"><div class="left"><i class="hm-dot" style="background:#2563eb"></i><span>'+agent+'</span></div><b>'+selectedValue.toLocaleString(undefined,{maximumFractionDigits:1})+' ('+(share*100).toFixed(1)+'%)</b></div>'+
-           '<div class="row"><div class="left"><i class="hm-dot" style="background:#cbd5e1"></i><span>'+(agent==='All Agents'?'Remaining Scope':'Other Agents')+'</span></div><b>'+other.toLocaleString(undefined,{maximumFractionDigits:1})+' ('+((1-share)*100).toFixed(1)+'%)</b></div>'+
+           '<div class="row"><div class="left"><i class="hm-dot" style="background:#2563eb"></i><span>'+agent+'</span></div><b>'+fmtSummary(selectedValue)+' ('+(share*100).toFixed(1)+'%)</b></div>'+
+           '<div class="row"><div class="left"><i class="hm-dot" style="background:#cbd5e1"></i><span>'+(agent==='All Agents'?'Remaining Scope':'Other Agents')+'</span></div><b>'+fmtSummary(other)+' ('+((1-share)*100).toFixed(1)+'%)</b></div>'+
          '</div></div></div>'+
-      '<div class="hm-card"><div class="hm-card-title">'+(isTill?'Till-Now':'Hour')+' Comparison</div><div class="hm-compare-list">'+
-         agents.map(a=>'<div class="hm-compare-row '+(a.agent===agent?'active':'')+'"><div class="name">'+a.agent+'</div><div class="bar"><i style="width:'+(a.value/maxVal*100)+'%"></i></div><div style="text-align:right;font-weight:850">'+a.value+'</div></div>').join('')+
+      '<div class="hm-card"><div class="hm-card-title">'+(kind==='till'?'Till-Now':'Hour')+' Comparison</div><div class="hm-compare-list">'+
+         agents.map(a=>'<div class="hm-compare-row '+(a.agent===agent?'active':'')+'"><div class="name">'+a.agent+'</div><div class="bar"><i style="width:'+(a.value/maxVal*100)+'%"></i></div><div style="text-align:right;font-weight:850">'+fmtSummary(a.value)+'</div></div>').join('')+
       '</div></div>'+
    '</div>'+
-   '<div class="hm-breakdown-box"><div class="hm-breakdown-head"><div>Work Type</div><div style="text-align:right">Workload</div></div>'+
-   rows.map(r=>'<div class="hm-breakdown-row"><div class="hm-worktype"><i class="hm-dot" style="background:'+r.color+'"></i>'+r.name+'</div><div class="hm-breakdown-value">'+r.value.toLocaleString(undefined,{maximumFractionDigits:1})+'</div></div>').join('')+
+   '<div class="hm-breakdown-box"><div class="hm-breakdown-head"><div>Selected Work Type</div><div style="text-align:right">Workload</div></div>'+
+   rows.map(r=>'<div class="hm-breakdown-row"><div class="hm-worktype"><i class="hm-dot" style="background:'+r.color+'"></i>'+r.name+'</div><div class="hm-breakdown-value">'+fmtSummary(r.value)+'</div></div>').join('')+
    '</div>'+
-   '<div class="hm-note"><i>i</i><span>Click another cell to update the selected hour analysis.</span></div>'
+   '<div class="hm-note"><i>i</i><span>Change the Work Type selection above to recalculate the heatmap and analysis.</span></div>'
+}
+
+function renderSummaryHeatmap(){
+ const body=document.getElementById('summaryHeatmapBody');
+ if(!body)return;
+
+ const hourAgentVals=summaryHeatmapData.flatMap((_,ai)=>summaryHeatmapPeriods.map((_,hi)=>summaryFilteredHour(ai,hi)));
+ const heatMin=Math.min(...hourAgentVals),heatMax=Math.max(...hourAgentVals);
+ const hourTotals=summaryHeatmapPeriods.map((_,hi)=>Math.round(summaryTeamTotal(hi)*10)/10);
+ const grand=Math.round(hourTotals.reduce((a,b)=>a+b,0)*10)/10;
+
+ const allRow='<tr class="all-row"><td class="rank-col">–</td><td class="agent-col">All Agents</td>'+
+   '<td class="till-col hm-cell" data-agent="All Agents" data-kind="till" data-hour-index="-1">'+fmtSummary(grand)+'</td>'+
+   hourTotals.map((v,i)=>'<td class="hm-cell" data-agent="All Agents" data-kind="hour" data-hour-index="'+i+'">'+fmtSummary(v)+'</td>').join('')+'</tr>';
+
+ const sorted=summaryHeatmapData.map((r,ai)=>({agent:r.agent,ai:ai,till:summaryFilteredTill(ai)})).sort((a,b)=>b.till-a.till);
+ const rows=sorted.map((r,rank)=>{
+   const till=Math.round(r.till*10)/10;
+   return '<tr><td class="rank-col">'+(rank+1)+'</td><td class="agent-col">'+r.agent+'</td>'+
+     '<td class="till-col hm-cell" data-agent="'+r.agent+'" data-kind="till" data-hour-index="-1">'+fmtSummary(till)+'</td>'+
+     summaryHeatmapPeriods.map((_,hi)=>{
+       const v=Math.round(summaryFilteredHour(r.ai,hi)*10)/10;
+       return '<td class="hm-cell" style="background:'+heatColor(v,heatMin,heatMax)+'" data-agent="'+r.agent+'" data-kind="hour" data-hour-index="'+hi+'">'+fmtSummary(v)+'</td>'
+     }).join('')+'</tr>'
+ }).join('');
+
+ body.innerHTML=allRow+rows;
+
+ const summaryLegend=document.querySelector('#summaryHeatmap').closest('.heatmap-wrap')?.parentElement?.querySelector('.heat-legend');
+ if(summaryLegend){
+   const spans=summaryLegend.querySelectorAll('span');
+   if(spans[0])spans[0].textContent='Lower Workload · '+fmtSummary(heatMin);
+   if(spans[2])spans[2].textContent='Higher Workload · '+fmtSummary(heatMax)
+ }
+
+ body.querySelectorAll('.hm-cell').forEach(cell=>{
+   cell.tabIndex=0;
+   const open=()=>showHeatmapDetail(cell.dataset.agent,'',0,0,cell);
+   cell.addEventListener('click',open);
+   cell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}})
+ });
+
+ let selected=Array.from(body.querySelectorAll('.hm-cell')).find(c=>
+   c.dataset.agent===summarySelectedCell.agent &&
+   c.dataset.kind===summarySelectedCell.kind &&
+   Number(c.dataset.hourIndex)===summarySelectedCell.hourIndex
+ );
+ if(!selected)selected=body.querySelector('.hm-cell');
+ if(selected)selected.click()
+}
+
+function bindSummaryWorkTypeFilters(){
+ const wrap=document.getElementById('summaryWorkTypeFilter');
+ const dropdown=document.getElementById('summaryWorkTypeDropdown');
+ const trigger=document.getElementById('summaryWorkTypeTrigger');
+ const summary=document.getElementById('summaryWorkTypeSummary');
+ const count=document.getElementById('summaryWorkTypeCount');
+ const selectAll=document.getElementById('summarySelectAllWorkTypes');
+ const confirm=document.getElementById('summaryConfirmWorkTypes');
+ const draftStatus=document.getElementById('summaryWorkTypeDraftStatus');
+ if(!wrap||!dropdown||!trigger||!confirm)return;
+
+ const boxes=Array.from(wrap.querySelectorAll('input[type="checkbox"]'));
+
+ const appliedNames=()=>summaryWorkTypes.filter(w=>summarySelectedTypes.has(w[0])).map(w=>w[0]);
+ const draftNames=()=>boxes.filter(b=>b.checked).map(b=>b.value);
+
+ const updateTrigger=()=>{
+   const selected=appliedNames();
+   if(count)count.textContent=selected.length;
+   if(summary){
+     if(selected.length===summaryWorkTypes.length)summary.textContent='All workload types';
+     else if(selected.length===1)summary.textContent=selected[0];
+     else summary.textContent=selected.length+' Work Types selected'
+   }
+ };
+
+ const loadAppliedIntoDraft=()=>{
+   boxes.forEach(b=>{b.checked=summarySelectedTypes.has(b.value)});
+   updateDraftUI()
+ };
+
+ const updateDraftUI=()=>{
+   const selected=draftNames();
+   const valid=selected.length>0;
+   confirm.disabled=!valid;
+   if(draftStatus){
+     draftStatus.textContent=valid?selected.length+' selected':'Select at least 1';
+     draftStatus.classList.toggle('invalid',!valid)
+   }
+ };
+
+ const closeDropdown=(discardDraft=true)=>{
+   dropdown.classList.remove('open');
+   trigger.setAttribute('aria-expanded','false');
+   if(discardDraft)loadAppliedIntoDraft()
+ };
+
+ boxes.forEach(box=>box.addEventListener('change',()=>{
+   updateDraftUI()
+ }));
+
+ trigger.addEventListener('click',e=>{
+   e.stopPropagation();
+   const willOpen=!dropdown.classList.contains('open');
+   if(willOpen){
+     loadAppliedIntoDraft();
+     dropdown.classList.add('open');
+     trigger.setAttribute('aria-expanded','true')
+   }else{
+     closeDropdown(true)
+   }
+ });
+
+ if(selectAll)selectAll.addEventListener('click',e=>{
+   e.stopPropagation();
+   boxes.forEach(b=>b.checked=true);
+   updateDraftUI()
+ });
+
+ confirm.addEventListener('click',e=>{
+   e.stopPropagation();
+   const selected=draftNames();
+   if(!selected.length)return;
+   summarySelectedTypes=new Set(selected);
+   updateTrigger();
+   renderSummaryHeatmap();
+   closeDropdown(false)
+ });
+
+ document.addEventListener('click',e=>{
+   if(!dropdown.contains(e.target) && dropdown.classList.contains('open')){
+     closeDropdown(true)
+   }
+ });
+
+ document.addEventListener('keydown',e=>{
+   if(e.key==='Escape'&&dropdown.classList.contains('open')){
+     closeDropdown(true);
+     trigger.focus()
+   }
+ });
+
+ updateTrigger();
+ loadAppliedIntoDraft();
+ renderSummaryHeatmap()
 }
 
 function initSummaryHeatmap(){
- const body=document.getElementById('summaryHeatmapBody');
- if(!body)return;
- const heatVals=summaryHeatmapData.flatMap(r=>r.values),heatMin=Math.min(...heatVals),heatMax=Math.max(...heatVals);
- const hourTotals=summaryHeatmapData[0].values.map((_,i)=>summaryHeatmapData.reduce((s,r)=>s+r.values[i],0));
- const grand=hourTotals.reduce((a,b)=>a+b,0);
- const allRow='<tr class="all-row"><td class="rank-col">–</td><td class="agent-col">All Agents</td><td class="till-col hm-cell" data-agent="All Agents" data-kind="till" data-period="Till Now" data-period-key="Till Now" data-total="'+grand+'" data-seed="90">'+grand.toLocaleString()+'</td>'+
-   hourTotals.map((v,i)=>'<td class="hm-cell" data-agent="All Agents" data-kind="hour" data-period="'+summaryHeatmapPeriods[i]+'" data-period-key="'+summaryHeatmapPeriods[i]+'" data-total="'+v+'" data-seed="'+(90+i)+'">'+v+'</td>').join('')+'</tr>';
- const sorted=[...summaryHeatmapData].sort((a,b)=>b.values.reduce((x,y)=>x+y,0)-a.values.reduce((x,y)=>x+y,0));
- const rows=sorted.map((r,rank)=>{
-   const till=r.values.reduce((a,b)=>a+b,0);
-   return '<tr><td class="rank-col">'+(rank+1)+'</td><td class="agent-col">'+r.agent+'</td><td class="till-col hm-cell" data-agent="'+r.agent+'" data-kind="till" data-period="Till Now · 7:00 AM–3:30 PM" data-period-key="Till Now" data-total="'+till+'" data-seed="'+(rank+10)+'">'+till+'</td>'+
-     r.values.map((v,i)=>'<td class="hm-cell" style="background:'+heatColor(v,heatMin,heatMax)+'" data-agent="'+r.agent+'" data-kind="hour" data-period="'+summaryHeatmapPeriods[i]+'" data-period-key="'+summaryHeatmapPeriods[i]+'" data-total="'+v+'" data-seed="'+(rank*11+i+1)+'">'+v+'</td>').join('')+'</tr>'
- }).join('');
- body.innerHTML=allRow+rows;
- const summaryLegend=document.querySelector('#summaryHeatmap').closest('.heatmap-wrap')?.parentElement?.querySelector('.heat-legend');if(summaryLegend){const spans=summaryLegend.querySelectorAll('span');if(spans[0])spans[0].textContent='Lower Workload · '+heatMin;if(spans[2])spans[2].textContent='Higher Workload · '+heatMax}
- body.querySelectorAll('.hm-cell').forEach(cell=>{cell.tabIndex=0;const open=()=>showHeatmapDetail(cell.dataset.agent,cell.dataset.period,Number(cell.dataset.total),Number(cell.dataset.seed),cell);cell.addEventListener('click',open);cell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}})});
- const defaultCell=Array.from(body.querySelectorAll('.hm-cell')).find(c=>c.dataset.agent==='Agent B'&&c.dataset.periodKey==='8:00–9:00 AM') || body.querySelector('.hm-cell');
- if(defaultCell)defaultCell.click()
+ bindSummaryWorkTypeFilters()
 }
 function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));document.getElementById('pageKicker').textContent=pageMeta[page][0];document.getElementById('pageTitle').textContent=pageMeta[page][1];document.getElementById('snapshotLabel').classList.toggle('hidden',!['livechat','call','pa','pq','white','yellow','helpdesk','email'].includes(page));window.scrollTo(0,0)}
 
